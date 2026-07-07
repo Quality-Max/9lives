@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# 9lives run artifacts
+.9lives/
+.9lives-report.md
+*.healed
+
+# Playwright
+node_modules/
+test-results/
+playwright-report/
+results.json

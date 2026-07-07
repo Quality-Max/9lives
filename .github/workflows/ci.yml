@@ -1,0 +1,51 @@
+# CI for the standalone Quality-Max/9lives repo.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: uv run --with pytest --no-project python -m pytest tests/ -q
+      - run: uv run --with ruff --no-project ruff check src/ tests/
+      - run: uv run --with ruff --no-project ruff format --check src/ tests/
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install and run doctor
+        run: |
+          uv tool install .
+          9l --version
+          9l doctor || true   # no LLM key in CI — doctor still must not crash
+      - name: Tier 1 offline heal e2e
+        run: |
+          mkdir -p /tmp/e2e && cd /tmp/e2e
+          cat > page.html <<'EOF'
+          <!doctype html><html><body>
+            <button id="b" onclick="this.textContent='Welcome!'">Sign in</button>
+          </body></html>
+          EOF
+          cat > login.spec.js <<EOF
+          const { test, expect } = require('@playwright/test');
+          test('sign in', async ({ page }) => {
+            await page.goto('file:///tmp/e2e/page.html');
+            await page.locator("text='Sign In'").click();
+            await expect(page.locator('#b')).toHaveText('Welcome!');
+          });
+          EOF
+          9l heal --yes login.spec.js
+          grep -q "text='Sign in'" login.spec.js

