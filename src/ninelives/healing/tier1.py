@@ -31,17 +31,19 @@ class Tier1LocatorHealer:
         if not failure.test_code:
             return self._no_heal_result("No test code provided")
 
-        alternative = self._find_alternative_selector(failure)
-        if alternative == failure.failed_selector:
-            alternative = None  # same selector is not a heal
-        if alternative:
+        found = self._find_alternative_selector(failure)
+        if found and found[0] == failure.failed_selector:
+            found = None  # same selector is not a heal
+        if found:
+            alternative, anchor = found
             healed_code = self._replace_selector(failure.test_code, failure.failed_selector, alternative)
             return HealingResult(
                 tier=HealingTier.TIER1_AUTO,
                 success=True,
                 healed_code=healed_code,
-                changes_made=[f"Replaced selector '{failure.failed_selector}' with '{alternative}'"],
+                changes_made=[f"Re-found via {anchor}: replaced '{failure.failed_selector}' with '{alternative}'"],
                 confidence=0.85,
+                metadata={"anchor": anchor},
             )
 
         transformed = self._try_transformations(failure.failed_selector)
@@ -67,24 +69,28 @@ class Tier1LocatorHealer:
 
         return self._no_heal_result("Could not find working alternative")
 
-    def _find_alternative_selector(self, failure: TestFailure) -> str | None:
-        """Find an alternative selector in the captured page state."""
+    def _find_alternative_selector(self, failure: TestFailure) -> tuple[str, str] | None:
+        """Find an alternative selector in the captured page state.
+
+        Returns (selector, anchor_type) — the anchor that re-identified the
+        element — so the report can show HOW it was re-found (e.g. "re-found
+        via testid"), or None when no anchor still resolves.
+        """
         if not failure.page_html:
             return None
-        for identifier in self._extract_identifiers(failure.failed_selector):
-            alternative = self._find_in_html(identifier, failure.page_html)
+        for id_type, id_value in self._extract_identifiers(failure.failed_selector):
+            alternative = self._find_in_html((id_type, id_value), failure.page_html)
             if alternative:
-                return alternative
+                return alternative, id_type
         return None
 
     def _extract_identifiers(self, selector: str) -> list[tuple[str, str]]:
         """Extract identifying parts from a selector."""
         identifiers = []
 
-        text_match = re.search(r"text=['\"]([^'\"]+)['\"]", selector)
-        if text_match:
-            identifiers.append(("text", text_match.group(1)))
-
+        # Stability order: testid > id > aria-label > text > class. We adopt the
+        # first anchor that still resolves on the live page, so the most durable
+        # identity wins and fragile copy/CSS churn is only the last resort.
         testid_match = re.search(r"data-testid=['\"]([^'\"]+)['\"]", selector)
         if testid_match:
             identifiers.append(("testid", testid_match.group(1)))
@@ -93,12 +99,16 @@ class Tier1LocatorHealer:
         if id_match:
             identifiers.append(("id", id_match.group(1)))
 
-        for cls in re.findall(r"\.([a-zA-Z][\w-]*)", selector):
-            identifiers.append(("class", cls))
-
         aria_match = re.search(r"aria-label=['\"]([^'\"]+)['\"]", selector)
         if aria_match:
             identifiers.append(("aria-label", aria_match.group(1)))
+
+        text_match = re.search(r"text=['\"]([^'\"]+)['\"]", selector)
+        if text_match:
+            identifiers.append(("text", text_match.group(1)))
+
+        for cls in re.findall(r"\.([a-zA-Z][\w-]*)", selector):
+            identifiers.append(("class", cls))
 
         return identifiers
 

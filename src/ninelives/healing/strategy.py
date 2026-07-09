@@ -6,6 +6,7 @@ human handoff.
 """
 
 import logging
+import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum
@@ -198,8 +199,12 @@ class HealingStrategySelector:
                 return HealingTier.TIER1_AUTO
             return HealingTier.TIER2_AI_SUGGEST
 
+        # Behavior-vs-drift guard: an assertion failure means the app behaved
+        # differently — not that a selector moved. Auto-rewriting the assertion
+        # to force a pass would hide a real bug, so 9lives never heals it and
+        # hands it to a human. Opt in explicitly with NINELIVES_HEAL_ASSERTIONS=1.
         if failure_type == FailureType.ASSERTION_FAILED:
-            if self._is_value_change(failure):
+            if os.environ.get("NINELIVES_HEAL_ASSERTIONS") == "1" and self._is_value_change(failure):
                 return HealingTier.TIER2_AI_SUGGEST
             return HealingTier.TIER3_HUMAN
 

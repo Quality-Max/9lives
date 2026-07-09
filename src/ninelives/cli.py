@@ -20,7 +20,7 @@ from pathlib import Path
 from . import __version__
 from .healing.parse import extract_failed_selector
 from .healing.patch import diff_stats, generate_unified_diff
-from .healing.strategy import HealingTier, TestFailure, healing_strategy_selector
+from .healing.strategy import FailureType, HealingTier, TestFailure, healing_strategy_selector
 from .healing.tier1 import tier1_healer
 from .healing.tier2 import Tier2AISuggest
 from .llm.agent_cli import detect_agent_clis
@@ -194,7 +194,14 @@ def _heal_loop(spec: Path, working_spec: Path, *, auto_apply: bool, max_iteratio
         elif tier == HealingTier.TIER2_AI_SUGGEST:
             healing = asyncio.run(tier2.suggest(failure))
         else:
-            print(f"{PAW} this failure needs a human ({tier.value}) — no automatic fix attempted.")
+            if failure.failure_type == FailureType.ASSERTION_FAILED:
+                # Behavior-vs-drift guard: never rewrite a failing assertion to
+                # force a pass — that hides a real bug. Flag it for a human.
+                print(f"{PAW} possible real bug — an assertion failed (behavior changed, not a selector).")
+                print("   9lives won't rewrite assertions to force a pass. Review it, or set")
+                print("   NINELIVES_HEAL_ASSERTIONS=1 to let Tier 2 propose an assertion update.")
+            else:
+                print(f"{PAW} this failure needs a human ({tier.value}) — no automatic fix attempted.")
             return SpecOutcome(
                 spec=spec.name,
                 status="needs-human",
