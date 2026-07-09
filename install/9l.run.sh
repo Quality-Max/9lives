@@ -8,7 +8,32 @@ set -e
 
 PAW="🐾"
 
+# Colors — only when stdout is a real terminal (curl | sh keeps stdout on the tty)
+if [ -t 1 ]; then
+  C_WORD="$(printf '\033[1;38;5;51m')"  # bold cyan kitten + wordmark
+  C_DIM="$(printf '\033[2m')"
+  C_RST="$(printf '\033[0m')"
+else
+  C_WORD=''; C_DIM=''; C_RST=''
+fi
+
 say() { printf '%s %s\n' "$PAW" "$1"; }
+
+banner() {
+  printf '\n%s' "$C_WORD"
+  cat <<'CAT'
+        /\_/\        ___  _ _
+       ( o.o )      / _ \| (_)_ _____ ___
+        > ^ <      | (_) | | \ V / -_|_-<
+       /     \      \__, |_|_|\_/\___/__/
+      ( |   | )       /_/
+       \_(_)_/
+CAT
+  printf '%s%s %snine lives for your tests — self-healing QA for the coding-agent era%s\n\n' \
+    "$C_RST" "$PAW" "$C_DIM" "$C_RST"
+}
+
+banner
 
 # 1. Ensure uv (installs Python itself if needed, keeps 9lives isolated)
 if ! command -v uv >/dev/null 2>&1; then
