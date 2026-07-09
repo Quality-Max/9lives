@@ -139,7 +139,7 @@ failed=0
 </details>
 
 ---
-🐾 checked by [9lives](https://9lives.run) — `curl -sL 9l.run | sh`
+🐾 checked by [9lives](https://9lives.run) — `curl -sL 9lives.run | sh`
 ```
 
 ## 5. Unit tests + lint

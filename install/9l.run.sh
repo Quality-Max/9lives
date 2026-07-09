@@ -1,6 +1,6 @@
 #!/bin/sh
-# 9lives installer — served at https://9l.run (and https://9lives.run/i)
-#   curl -sL 9l.run | sh
+# 9lives installer — served at https://9lives.run
+#   curl -sL 9lives.run | sh
 #
 # Installs the 9lives CLI (`9l`) into an isolated environment via uv.
 # No account, no telemetry. MIT. https://github.com/Quality-Max/9lives

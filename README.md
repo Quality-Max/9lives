@@ -17,7 +17,7 @@ Your coding agent shipped a change and your Playwright test went red? Don't rewr
 ## Install
 
 ```bash
-curl -sL 9l.run | sh        # coming soon
+curl -sL 9lives.run | sh
 pip install 9lives          # or: uv tool install 9lives
 ```
 

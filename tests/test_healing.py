@@ -200,7 +200,7 @@ def test_render_markdown_report():
     assert "| `login.spec.ts` | 🐾 healed |" in body
     assert "Timeout \\| strict" in body  # pipes escaped for the table
     assert "```diff" in body
-    assert "9l.run" in body  # the footer IS the growth loop
+    assert "9lives.run" in body  # the footer IS the growth loop
 
 
 def test_write_github_reports(tmp_path, monkeypatch):
