@@ -53,6 +53,18 @@ def find_user_project(start: Path) -> Path | None:
     return None
 
 
+def find_enclosing_package_json(start: Path) -> Path | None:
+    """Nearest ancestor dir (incl. `start`) with a package.json, regardless of its deps.
+
+    Used to tell a bare spec (no package.json anywhere → safe to scaffold) apart from
+    a spec inside a real Node project that simply hasn't installed @playwright/test.
+    """
+    for directory in [start, *start.parents]:
+        if (directory / "package.json").is_file():
+            return directory
+    return None
+
+
 def scaffold_project(workdir: Path, spec_path: Path) -> Path:
     """Create an ephemeral Playwright project around a bare spec file.
 
