@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "9lives"
-version = "0.1.0"
+version = "0.1.1"
 description = "Self-healing QA for the coding-agent era. Your tests have nine lives."
 readme = "README.md"
 license = { text = "MIT" }
