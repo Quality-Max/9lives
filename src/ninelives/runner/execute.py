@@ -15,7 +15,7 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .project import find_user_project, scaffold_project
+from .project import find_enclosing_package_json, find_user_project, scaffold_project
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +81,30 @@ def ensure_browsers(project_dir: Path) -> None:
     result = _run([npx, "playwright", "install", "chromium"], project_dir, INSTALL_TIMEOUT_SECONDS)
     if result.returncode != 0:
         raise RunnerError(f"playwright install chromium failed:\n{result.stderr[-2000:]}")
+
+
+def ensure_project_ready(spec_path: Path) -> None:
+    """Preflight: fail fast with actionable advice when the spec lives in a Node
+    project that hasn't installed @playwright/test.
+
+    Without this, `find_user_project` returns None (it only matches a package.json
+    that *depends on* @playwright/test), 9lives silently scaffolds a detached
+    project, and the spec's own fixture/helper imports fail — which `heal` then
+    tries to "fix", masking the real problem (Playwright just isn't installed).
+    A bare spec with no enclosing package.json is fine — that scaffolds correctly.
+    """
+    spec_path = spec_path.resolve()
+    if find_user_project(spec_path.parent) is not None:
+        return  # real Playwright project — good to go
+    enclosing = find_enclosing_package_json(spec_path.parent)
+    if enclosing is not None:
+        raise RunnerError(
+            f"{enclosing / 'package.json'} exists but does not depend on @playwright/test.\n"
+            "9lives runs your spec against your own Playwright project — install it first:\n"
+            "    npm install -D @playwright/test && npx playwright install\n"
+            "then re-run 9lives. (Standalone specs with no enclosing package.json are "
+            "scaffolded automatically.)"
+        )
 
 
 def run_spec(spec_path: Path, workdir: Path | None = None) -> RunResult:

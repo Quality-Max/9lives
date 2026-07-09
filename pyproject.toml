@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "9lives"
-version = "0.1.1"
+version = "0.1.2"
 description = "Self-healing QA for the coding-agent era. Your tests have nine lives."
 readme = "README.md"
 license = { text = "MIT" }
@@ -15,8 +15,14 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance",
 ]
 # LLM SDKs are optional: Tier 1 healing is fully offline.
 dependencies = []

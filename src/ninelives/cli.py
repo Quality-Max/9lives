@@ -27,7 +27,7 @@ from .llm.agent_cli import detect_agent_clis
 from .llm.client import LLMClient
 from .report.github import SpecOutcome, write_github_reports
 from .runner.artifacts import collect_artifacts
-from .runner.execute import RunnerError, run_spec
+from .runner.execute import RunnerError, ensure_project_ready, run_spec
 from .runner.project import find_user_project
 
 logger = logging.getLogger(__name__)
@@ -88,6 +88,7 @@ def cmd_run(specs: list[Path]) -> int:
 
 
 def run_one(spec: Path) -> SpecOutcome:
+    ensure_project_ready(spec)
     print(f"{PAW} running {spec} …")
     result = run_spec(spec)
     artifacts = collect_artifacts(result.project_dir, _dest_root(spec)) if result.project_dir else None
@@ -120,6 +121,7 @@ def cmd_heal(specs: list[Path], auto_apply: bool = False, max_iterations: int = 
 
 def heal_one(spec: Path, auto_apply: bool = False, max_iterations: int = MAX_HEALING_ITERATIONS) -> SpecOutcome:
     spec = spec.resolve()
+    ensure_project_ready(spec)  # fail fast on a project missing @playwright/test, before scaffolding/healing
     # Heal against a working copy so the user's own file is only touched after
     # approval. When the spec lives inside a real Playwright project, that copy
     # MUST stay a sibling of the original — otherwise its playwright.config

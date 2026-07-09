@@ -11,6 +11,7 @@ from ninelives.healing.patch import diff_stats, generate_unified_diff  # noqa: E
 from ninelives.healing.strategy import FailureType, HealingTier, TestFailure, healing_strategy_selector  # noqa: E402
 from ninelives.healing.tier1 import tier1_healer  # noqa: E402
 from ninelives.runner.artifacts import parse_error_context  # noqa: E402
+from ninelives.runner.execute import RunnerError, ensure_project_ready  # noqa: E402
 
 
 def test_classify_locator_failure():
@@ -338,3 +339,32 @@ def test_heal_verifies_final_attempt_when_max_iterations_one(tmp_path, monkeypat
     assert outcome.status == "healed"
     assert len(runs) == 2  # initial failing run + final verification run
     assert spec.read_text() == "await page.locator('#new').click();\n"
+
+
+def test_preflight_bare_spec_ok(tmp_path):
+    # No package.json anywhere → 9lives will scaffold; preflight must not raise.
+    spec = tmp_path / "login.spec.js"
+    spec.write_text("test('x', async () => {});\n")
+    ensure_project_ready(spec)
+
+
+def test_preflight_real_playwright_project_ok(tmp_path):
+    (tmp_path / "package.json").write_text('{"devDependencies": {"@playwright/test": "1.61.1"}}')
+    spec = tmp_path / "login.spec.js"
+    spec.write_text("test('x', async () => {});\n")
+    ensure_project_ready(spec)  # real project → no raise
+
+
+def test_preflight_project_missing_playwright_raises(tmp_path):
+    # A real Node project that simply hasn't installed @playwright/test → clear error,
+    # NOT a silent detached scaffold that heal would then try to "fix".
+    (tmp_path / "package.json").write_text('{"dependencies": {"react": "18.0.0"}}')
+    spec = tmp_path / "login.spec.js"
+    spec.write_text("test('x', async () => {});\n")
+    raised = False
+    try:
+        ensure_project_ready(spec)
+    except RunnerError as exc:
+        raised = True
+        assert "@playwright/test" in str(exc)
+    assert raised, "expected RunnerError when the enclosing project lacks @playwright/test"
