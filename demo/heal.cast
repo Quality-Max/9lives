@@ -1,0 +1,9 @@
+{"version":3,"term":{"cols":80,"rows":24},"timestamp":1783634686,"idle_time_limit":1.2,"command":"bash /var/folders/nk/63t416311tx1dg1p62835pjr0000gn/T/tmp.5p4eFse3jD","env":{"SHELL":"/bin/zsh"}}
+[0.119, "o", "\u001b[38;5;213m$ \u001b[1;38;5;51m9l heal login.spec.js\u001b[0m\r\n\r\n"]
+[1.203, "o", "🐾 run 1/3: login.spec.js …\r\n"]
+[39.687, "o", "  failure: locator_not_found (selector: text='Sign In') → tier1_auto\r\n"]
+[0.003, "o", "  tier1_auto: Replaced selector 'text='Sign In'' with 'text='Sign in'' (confidence 85%)\r\n"]
+[0.000, "o", "🐾 run 2/3: login.spec.js …\r\n"]
+[9.023, "o", "\r\n🐾 healed! (+1 / -1)\r\n\r\n--- a/login.spec.js\r\n+++ b/login.spec.js\r\n@@ -2,8 +2,8 @@\r\n \r\n // This test breaks the way real tests break: a coding agent tweaked the button\r\n // copy from \"Sign In\" to \"Sign in\", so this exact-text selector went stale.\r\n test('user can sign in', async ({ page }) => {\r\n   await page.goto(process.env.DEMO_URL || 'http://localhost:8137');\r\n-  await page.locator(\"text='Sign In'\").click(); // page now says \"Sign in\"\r\n+  await page.locator(\"text='Sign in'\").click(); // page now says \"Sign in\"\r\n   await expect(page.locator('.ok')).toBeVisible();\r\n });\r\n\r\n"]
+[0.000, "o", "🐾 applied. Your test came back to life.\r\n"]
+[1.258, "x", "0"]

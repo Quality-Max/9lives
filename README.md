@@ -2,6 +2,10 @@
 
 **Your tests have nine lives.** Self-healing QA for the coding-agent era, by [QualityMax](https://qualitymax.io).
 
+![9lives healing a broken Playwright selector — offline, in seconds](demo/heal.gif)
+
+> A coding agent renamed a button, the test went red, `9l heal` read the live page, fixed the locator, re-ran it green, and showed the diff — no API key. [**Run the demo yourself →**](demo/)
+
 Your coding agent shipped a change and your Playwright test went red? Don't rewrite it — resurrect it:
 
 ```bash

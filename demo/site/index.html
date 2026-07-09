@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Acme — Login</title>
+<style>
+ body{font-family:system-ui;background:#0b0f1a;color:#e6e9ef;display:grid;place-items:center;height:100vh;margin:0}
+ .card{background:#141a2b;padding:32px 40px;border-radius:14px;box-shadow:0 8px 40px #0006;width:280px}
+ h1{font-size:18px;margin:0 0 18px} input{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #2a3350;background:#0e1524;color:#e6e9ef;box-sizing:border-box}
+ button{width:100%;padding:11px;margin-top:12px;border:0;border-radius:8px;background:#7c5cff;color:#fff;font-weight:600;cursor:pointer}
+ .ok{margin-top:14px;color:#3ddc84;display:none}
+</style></head>
+<body>
+ <div class="card">
+  <h1>Sign in to Acme</h1>
+  <input id="email" placeholder="Email" value="ada@acme.dev">
+  <input id="password" type="password" placeholder="Password" value="hunter2">
+  <!-- The button copy is "Sign in" (lowercase i). The test looks for "Sign In". -->
+  <button id="submit" onclick="document.querySelector('.ok').style.display='block'">Sign in</button>
+  <div class="ok" role="status">✅ Signed in</div>
+ </div>
+</body></html>
