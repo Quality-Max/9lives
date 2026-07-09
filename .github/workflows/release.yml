@@ -43,8 +43,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           shopt -s nullglob
+          # Globs only — with nullglob a missing SBOM (its step is best-effort /
+          # continue-on-error) drops out silently instead of failing the release.
           gh release create "$GITHUB_REF_NAME" --generate-notes \
-            dist/*.whl dist/*.tar.gz dist/*.sigstore* 9lives.cdx.json
+            dist/*.whl dist/*.tar.gz dist/*.sigstore* *.cdx.json
 
   action-major-tag:
     # Keep `uses: quality-max/9lives/action@v1` pointing at the newest v1.x.y
