@@ -14,7 +14,9 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 COMMENT_BODY_FILENAME = ".9lives-report.md"
-FOOTER = "🐾 checked by [9lives](https://9lives.run) — `curl -sL 9lives.run | sh`"
+FOOTER = (
+    "🐾 healed by [9lives](https://9lives.run) — self-healing Playwright for the coding-agent era · `curl -sL 9lives.run | sh`"
+)
 
 _STATUS_EMOJI = {
     "passed": "✅",

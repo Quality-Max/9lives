@@ -368,3 +368,52 @@ def test_preflight_project_missing_playwright_raises(tmp_path):
         raised = True
         assert "@playwright/test" in str(exc)
     assert raised, "expected RunnerError when the enclosing project lacks @playwright/test"
+
+
+def test_assertion_failure_is_not_auto_healed():
+    # Behavior-vs-drift guard: a failing assertion is a possible real bug, so it
+    # goes to a human — never a Tier 2 rewrite that would force the test green.
+    failure = TestFailure(
+        failure_type=FailureType.ASSERTION_FAILED,
+        error_message="Error: expect(received).toBe(expected)\nExpected: 5\nReceived: 4",
+    )
+    assert healing_strategy_selector.select_strategy(failure) == HealingTier.TIER3_HUMAN
+
+
+def test_assertion_heal_is_opt_in(monkeypatch):
+    failure = TestFailure(
+        failure_type=FailureType.ASSERTION_FAILED,
+        error_message="Expected: 5 Received: 4",
+    )
+    monkeypatch.setenv("NINELIVES_HEAL_ASSERTIONS", "1")
+    assert healing_strategy_selector.select_strategy(failure) == HealingTier.TIER2_AI_SUGGEST
+
+
+def test_tier1_records_winning_anchor():
+    # Anchor redundancy: the heal reports WHICH anchor re-identified the element.
+    failure = TestFailure(
+        failure_type=FailureType.LOCATOR_NOT_FOUND,
+        error_message="waiting for locator('#login-btn')",
+        failed_selector="#login-btn",
+        test_code="await page.locator('#login-btn').click();",
+        page_html='<button id="login-btn-v2">Sign in</button>',
+    )
+    result = asyncio.run(tier1_healer.heal(failure))
+    assert result.success
+    assert result.metadata.get("anchor") == "id"
+    assert "re-found via id" in result.changes_made[0].lower()
+
+
+def test_tier1_prefers_stable_anchor_over_class():
+    # A selector carrying both a testid and a class should re-find via the
+    # stabler testid, not the fragile class.
+    failure = TestFailure(
+        failure_type=FailureType.LOCATOR_NOT_FOUND,
+        error_message="not found",
+        failed_selector="[data-testid='submit'].btn-old",
+        test_code="await page.locator(\"[data-testid='submit'].btn-old\").click();",
+        page_html='<button data-testid="submit" class="btn-new">Go</button>',
+    )
+    result = asyncio.run(tier1_healer.heal(failure))
+    assert result.success
+    assert result.metadata.get("anchor") == "testid"

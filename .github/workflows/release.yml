@@ -20,11 +20,31 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv build
+      # Publish with PEP 740 attestations — PyPI records signed build provenance
+      # (repo + workflow + commit) that anyone can verify. No token, OIDC only.
       - uses: pypa/gh-action-pypi-publish@release/v1
-      - name: GitHub release
+        with:
+          attestations: true
+      # CycloneDX SBOM of the built wheel (best-effort; never blocks a release).
+      - name: SBOM (CycloneDX)
+        continue-on-error: true
+        run: |
+          uv venv /tmp/sbomenv
+          uv pip install --python /tmp/sbomenv dist/*.whl
+          uvx --from cyclonedx-bom cyclonedx-py environment /tmp/sbomenv -o 9lives.cdx.json
+      # Sigstore-sign the artifacts; the .sigstore bundles ship on the release
+      # so installs from GitHub can be cryptographically verified too.
+      - name: Sign artifacts with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        with:
+          inputs: ./dist/*.whl ./dist/*.tar.gz
+      - name: GitHub release (artifacts + signatures + SBOM)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/* --generate-notes
+        run: |
+          shopt -s nullglob
+          gh release create "$GITHUB_REF_NAME" --generate-notes \
+            dist/*.whl dist/*.tar.gz dist/*.sigstore* 9lives.cdx.json
 
   action-major-tag:
     # Keep `uses: quality-max/9lives/action@v1` pointing at the newest v1.x.y

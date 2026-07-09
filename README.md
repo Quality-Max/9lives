@@ -18,6 +18,8 @@ Your coding agent shipped a change and your Playwright test went red? Don't rewr
 2. **Tier 2 — the subscription you already pay for.** Structural change? 9lives shells out to your installed coding-agent CLI — **Claude Code (`claude -p`), Codex (`codex exec`), or OpenCode (`opencode run`)** — so your existing subscription does the thinking. No API key to mint, nothing to configure: if the CLI is logged in, healing works. (Prefer raw API? `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` work too.)
 3. **Always a diff, never a surprise.** Healed code is shown as a unified diff and applied only when you approve (or `--yes` in CI).
 
+**Won't hide your bugs.** A failing *assertion* means the app's behavior changed — not that a selector moved. 9lives refuses to rewrite assertions to force a green (that's how naive auto-healers mask regressions) and flags it as a possible real bug instead. Opt in with `NINELIVES_HEAL_ASSERTIONS=1` if you really want it to propose an assertion update.
+
 ## Install
 
 ```bash
