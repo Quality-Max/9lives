@@ -35,10 +35,70 @@ Requires Node.js ≥ 18 (Playwright itself runs on Node). Check your setup with 
 9l run <spec>         # run a spec locally; screenshots/videos/traces in .9lives/
 9l heal <spec>        # run → heal → re-run → diff → apply on confirm
 9l heal <spec> --yes  # CI mode: apply automatically, exit code tells the story
+9l watch [dir]        # heal on save — polls specs, heals whatever changes
+9l report             # brittle-selector report from your local heal history
+9l mcp                # serve heal_test/run_test as MCP tools for coding agents
 9l doctor             # environment check
 ```
 
 Works inside an existing Playwright project (uses your `package.json`) or on a bare `.spec.ts` file (scaffolds an ephemeral project automatically). All commands accept multiple specs/globs.
+
+## Cypress & Selenium too
+
+The heal verb is framework-agnostic. `9l heal` auto-detects the framework per spec — `.cy.js`/`.cy.ts` (or a package.json depending on cypress) runs through **Cypress**, `.py` specs run through **Selenium via your own pytest**, everything else is Playwright. Force it with `--framework cypress|selenium|playwright`.
+
+```bash
+9l heal cypress/e2e/login.cy.js     # runs `npx cypress run` in your project
+9l heal tests/test_checkout.py      # runs your pytest + selenium
+```
+
+Same loop everywhere: classify → Tier 1 offline selector repair → Tier 2 via your subscription → re-run → diff → approve. Cypress's `Expected to find element: \`#x\`` and Selenium's `NoSuchElementException` payloads both carry the failing selector, and both are correctly treated as *selector drift* — never as assertion failures (Cypress wraps locator misses in `AssertionError`; 9lives sees through that so the behavior-vs-drift guard doesn't misfire). 9lives never scaffolds a Cypress project or a Python env — those specs run against your own install.
+
+## For coding agents: `9l mcp`
+
+Your agent wrote code, a test went red — let it heal the test **in-loop** instead of waiting for CI. `9l mcp` speaks MCP over stdio (zero extra dependencies) and exposes two tools: `heal_test` (run → heal → verify → return the diff; `apply: true` writes it in place, otherwise a `.healed` copy is saved for review) and `run_test`.
+
+```bash
+# Claude Code
+claude mcp add 9lives -- 9l mcp
+# or without installing first:
+claude mcp add 9lives -- uvx --from 9lives 9l mcp
+```
+
+```json
+// Cursor (.cursor/mcp.json) / Codex — any MCP host with stdio servers
+{ "mcpServers": { "9lives": { "command": "9l", "args": ["mcp"] } } }
+```
+
+The behavior-vs-drift guard applies to agents too: a failing assertion comes back as `needs-human`, with an explicit note that forcing it green would mask a real bug.
+
+## Heal on save & pre-commit
+
+`9l watch` makes healing part of the edit-save loop: it polls your specs (no OS-specific watchers, works everywhere) and runs the heal loop on whatever changed. `--yes` applies automatically.
+
+```bash
+9l watch tests/ --yes
+```
+
+As a [pre-commit](https://pre-commit.com) hook — heal (or just run) changed specs before they ever reach CI:
+
+```yaml
+repos:
+  - repo: https://github.com/Quality-Max/9lives
+    rev: v0.2.0
+    hooks:
+      - id: 9lives-heal   # heals drifted selectors in place; assertion failures still block
+      # - id: 9lives-run  # strict variant: run only, never modify
+```
+
+## Which selectors are rotting? `9l report`
+
+Every heal appends a line to `.9lives/history.jsonl` next to the spec — locally, never uploaded. `9l report` aggregates that history into a brittle-selector report: which selectors keep breaking, which anchor (testid/id/text/class) keeps re-finding them, and what to pin instead.
+
+```bash
+9l report            # terminal table, worst selectors first
+9l report --md brittle-selectors.md
+```
 
 ## In CI: the GitHub Action
 

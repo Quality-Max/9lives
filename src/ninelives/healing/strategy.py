@@ -53,6 +53,7 @@ class TestFailure:
     test_code: str = ""
     page_url: str = ""
     page_html: str = ""
+    framework: str = "playwright"  # playwright | cypress | selenium
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -98,6 +99,19 @@ class HealingStrategySelector:
         always presented as a diff for approval.
     Tier 3 (Human): flow changed, redesign needed — analysis only.
     """
+
+    # Checked before everything else: Cypress wraps locator misses in
+    # AssertionError ("Timed out retrying …: Expected to find element: `#x`")
+    # and Selenium raises NoSuchElementException — both are selector drift,
+    # not behavior change, and must never trip the assertion guard.
+    LOCATOR_OVERRIDE_PATTERNS = [
+        r"expected to find (?:element|content)",
+        r"never found it",
+        r"unable to locate element",
+        r"no such element",
+        r"NoSuchElementException",
+        r"StaleElementReferenceException",
+    ]
 
     LOCATOR_PATTERNS = [
         r"locator.*not found",
@@ -153,6 +167,10 @@ class HealingStrategySelector:
     def classify_failure(self, error_message: str, stack_trace: str = "") -> FailureType:
         """Classify the type of failure from error message."""
         combined = f"{error_message} {stack_trace}".lower()
+
+        for pattern in self.LOCATOR_OVERRIDE_PATTERNS:
+            if re.search(pattern, combined, re.IGNORECASE):
+                return FailureType.LOCATOR_NOT_FOUND
 
         for pattern in self.FLOW_CHANGE_PATTERNS:
             if re.search(pattern, combined, re.IGNORECASE):

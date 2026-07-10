@@ -43,7 +43,7 @@ class Tier1LocatorHealer:
                 healed_code=healed_code,
                 changes_made=[f"Re-found via {anchor}: replaced '{failure.failed_selector}' with '{alternative}'"],
                 confidence=0.85,
-                metadata={"anchor": anchor},
+                metadata={"anchor": anchor, "old_selector": failure.failed_selector, "new_selector": alternative},
             )
 
         transformed = self._try_transformations(failure.failed_selector)
@@ -55,9 +55,12 @@ class Tier1LocatorHealer:
                 healed_code=healed_code,
                 changes_made=[f"Transformed selector '{failure.failed_selector}' to '{transformed}'"],
                 confidence=0.7,
+                metadata={"old_selector": failure.failed_selector, "new_selector": transformed},
             )
 
-        if self._is_timing_issue(failure):
+        # The wait/scroll injection writes Playwright API calls; other
+        # frameworks escalate to Tier 2 instead of gaining `await page.…` lines.
+        if failure.framework == "playwright" and self._is_timing_issue(failure):
             healed_code = self._add_wait_handling(failure.test_code, failure.failed_selector)
             return HealingResult(
                 tier=HealingTier.TIER1_AUTO,

@@ -21,20 +21,47 @@ _SELECTOR_CALL = re.compile(
 )
 _WAITING_FOR = re.compile(r"waiting for (?:locator|selector)\s*\(?" + _QUOTED + r"\)?", re.IGNORECASE)
 
+# Cypress: "Timed out retrying after 4000ms: Expected to find element: `#login`,
+# but never found it." — the selector travels between backticks.
+_CYPRESS_EXPECTED = re.compile(r"Expected to find (?:element|content):\s*`([^`]+)`", re.IGNORECASE)
+_CY_CALL = re.compile(r"cy\.(?:get|find|contains)\(" + _QUOTED, re.IGNORECASE)
+
+# Selenium: NoSuchElementException carries a JSON payload —
+#   {"method":"css selector","selector":"#login"}
+# and the pytest stack shows the source call: By.CSS_SELECTOR, "#login".
+_SELENIUM_JSON = re.compile(r'"method"\s*:\s*"[^"]+"\s*,\s*"selector"\s*:\s*"((?:\\.|[^"\\])*)"')
+_SELENIUM_BY = re.compile(r"By\.\w+\s*,\s*" + _QUOTED)
+
 
 def _unescape(selector: str) -> str:
     return selector.replace("\\'", "'").replace('\\"', '"').replace("\\\\", "\\")
 
 
 def extract_failed_selector(error_message: str, stack_trace: str = "") -> str | None:
-    """Extract the failing selector from a Playwright error message."""
+    """Extract the failing selector from a Playwright/Cypress/Selenium error."""
     combined = f"{error_message}\n{stack_trace}"
 
     match = _WAITING_FOR.search(combined)
     if match:
         return _unescape(match.group(2))
 
+    match = _CYPRESS_EXPECTED.search(combined)
+    if match:
+        return match.group(1)
+
+    match = _SELENIUM_JSON.search(combined)
+    if match:
+        return _unescape(match.group(1))
+
     match = _SELECTOR_CALL.search(combined)
+    if match:
+        return _unescape(match.group(2))
+
+    match = _CY_CALL.search(combined)
+    if match:
+        return _unescape(match.group(2))
+
+    match = _SELENIUM_BY.search(combined)
     if match:
         return _unescape(match.group(2))
 

@@ -1,0 +1,25 @@
+# 9lives as a pre-commit hook — heal failing specs before they reach CI.
+#
+#   repo: https://github.com/Quality-Max/9lives
+#   rev: v0.2.0
+#   hooks:
+#     - id: 9lives-heal
+#
+# Both hooks need the runtime the spec's framework needs (Node for
+# Playwright/Cypress, pytest for Selenium) available on PATH.
+- id: 9lives-heal
+  name: 9lives — heal failing specs
+  description: Run changed specs through `9l heal --yes`; drifted selectors are fixed in place, assertion failures still block the commit.
+  entry: 9l heal --yes
+  language: python
+  files: '(\.(spec|test)\.[cm]?[jt]sx?|\.cy\.[cm]?[jt]sx?)$'
+  pass_filenames: true
+  verbose: true
+
+- id: 9lives-run
+  name: 9lives — run specs (no healing)
+  description: Run changed specs through `9l run` and fail the commit on red, without modifying anything.
+  entry: 9l run
+  language: python
+  files: '(\.(spec|test)\.[cm]?[jt]sx?|\.cy\.[cm]?[jt]sx?)$'
+  pass_filenames: true
