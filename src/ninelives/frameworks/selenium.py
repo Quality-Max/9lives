@@ -25,6 +25,14 @@ class SeleniumAdapter:
     language = "python"
 
     def preflight(self, spec: Path) -> None:
+        # Defense-in-depth for the agent-callable MCP path: run() below invokes
+        # pytest via an argv list (never a shell), and the spec path is resolved
+        # to an absolute path before being passed as an argument, so it can't be
+        # parsed as a pytest flag or injected into a shell. Still, only .py files
+        # make sense to run through pytest at all — reject anything else early,
+        # before the PATH check, so this fails even without pytest installed.
+        if spec.suffix.lower() != ".py":
+            raise RunnerError(f"Selenium specs run through pytest and must be .py files (got {spec.name})")
         if shutil.which("pytest") is None:
             raise RunnerError(
                 "'pytest' not found on PATH — Selenium specs run through your own pytest:\n"

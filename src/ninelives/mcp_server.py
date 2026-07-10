@@ -14,10 +14,12 @@ is redirected to stderr (which MCP hosts surface as server logs).
 import contextlib
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 
 from . import __version__
+from .runner.execute import RunnerError
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +32,33 @@ INSTRUCTIONS = (
     "it re-runs the spec, repairs drifted selectors (offline Tier 1, LLM Tier 2), verifies green, "
     "and returns the diff. With apply=false the fix is saved next to the spec as <spec>.healed "
     "for you to review/apply; with apply=true it is written in place. "
-    "A needs-human status usually means a failing assertion — a possible real bug 9lives refuses to mask."
+    "A needs-human status usually means a failing assertion — a possible real bug 9lives refuses to mask. "
+    "Specs must be existing test files under the server's working directory."
 )
+
+_SPEC_SUFFIXES = {".js", ".mjs", ".cjs", ".ts", ".jsx", ".tsx", ".py"}
+
+
+def _validated_spec(raw: str) -> Path:
+    """Resolve and validate a tool-supplied spec path.
+
+    The MCP surface is agent-callable, and healing a spec ultimately
+    executes it (pytest import / test run) — so specs must be real test
+    files inside the server's working directory. Set
+    NINELIVES_MCP_UNRESTRICTED=1 to lift the cwd containment.
+    """
+    spec = Path(raw).expanduser().resolve()
+    if not spec.is_file():
+        raise RunnerError(f"spec not found: {spec}")
+    if spec.suffix.lower() not in _SPEC_SUFFIXES:
+        raise RunnerError(f"not a recognized test spec ({spec.suffix or 'no extension'}): {spec}")
+    if os.environ.get("NINELIVES_MCP_UNRESTRICTED") != "1" and not spec.is_relative_to(Path.cwd().resolve()):
+        raise RunnerError(
+            f"spec is outside the working directory: {spec} — run `9l mcp` from the project root, "
+            "or set NINELIVES_MCP_UNRESTRICTED=1 to allow it"
+        )
+    return spec
+
 
 TOOLS = [
     {
@@ -146,8 +173,6 @@ def _tool_text(msg_id, payload: dict, is_error: bool = False) -> dict:
 
 
 def _call_tool(msg_id, params: dict) -> dict:
-    from .runner.execute import RunnerError
-
     name = params.get("name")
     args = params.get("arguments") or {}
     try:
@@ -166,7 +191,7 @@ def _call_tool(msg_id, params: dict) -> dict:
 def _heal_test(args: dict) -> dict:
     from .cli import heal_one
 
-    spec = Path(args["spec"]).expanduser()
+    spec = _validated_spec(args["spec"])
     apply = bool(args.get("apply", False))
     # The heal loop prints progress to stdout, which would corrupt the
     # protocol stream — reroute it to stderr (host shows it as server logs).
@@ -196,7 +221,7 @@ def _heal_test(args: dict) -> dict:
 def _run_test(args: dict) -> dict:
     from .cli import run_one
 
-    spec = Path(args["spec"]).expanduser()
+    spec = _validated_spec(args["spec"])
     with contextlib.redirect_stdout(sys.stderr):
         outcome = run_one(spec, framework=args.get("framework", "auto"))
     return {"spec": str(spec), "status": outcome.status, "detail": outcome.detail}

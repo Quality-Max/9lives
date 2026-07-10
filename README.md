@@ -70,7 +70,7 @@ claude mcp add 9lives -- uvx --from 9lives 9l mcp
 { "mcpServers": { "9lives": { "command": "9l", "args": ["mcp"] } } }
 ```
 
-The behavior-vs-drift guard applies to agents too: a failing assertion comes back as `needs-human`, with an explicit note that forcing it green would mask a real bug.
+The behavior-vs-drift guard applies to agents too: a failing assertion comes back as `needs-human`, with an explicit note that forcing it green would mask a real bug. `heal_test` only accepts existing test files under the directory `9l mcp` was started in (`NINELIVES_MCP_UNRESTRICTED=1` lifts this), since healing a spec ultimately executes it.
 
 ## Heal on save & pre-commit
 

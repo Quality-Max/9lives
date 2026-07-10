@@ -7,14 +7,17 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from ninelives.frameworks import detect_framework, get_adapter  # noqa: E402
 from ninelives.frameworks.cypress import parse_mocha_json  # noqa: E402
-from ninelives.frameworks.selenium import parse_pytest_output  # noqa: E402
+from ninelives.frameworks.selenium import SeleniumAdapter, parse_pytest_output  # noqa: E402
 from ninelives.healing.parse import extract_failed_selector  # noqa: E402
 from ninelives.healing.strategy import FailureType, TestFailure, healing_strategy_selector  # noqa: E402
 from ninelives.healing.tier1 import tier1_healer  # noqa: E402
+from ninelives.runner.execute import RunnerError  # noqa: E402
 
 
 # ---------- framework detection ----------
@@ -222,7 +225,9 @@ def test_mcp_heal_test_returns_structured_result(tmp_path, monkeypatch):
         return SpecOutcome(spec=spec.name, status="healed", detail="not applied — saved", diff="--- a\n+++ b")
 
     monkeypatch.setattr(cli, "heal_one", fake_heal_one)
+    monkeypatch.chdir(tmp_path)
     spec = tmp_path / "login.spec.js"
+    spec.write_text("x")
 
     responses = _mcp_roundtrip(
         [
@@ -274,3 +279,93 @@ def test_watch_scan_finds_specs_and_ignores_noise(tmp_path):
     os.utime(target, (target.stat().st_atime, target.stat().st_mtime + 5))
     changed = changed_specs(snapshot, scan([tmp_path]))
     assert [p.name for p in changed] == ["login.spec.js"]
+
+
+# ---------- security hardening ----------
+
+
+def test_selenium_preflight_rejects_non_py(tmp_path):
+    spec = tmp_path / "login.spec.js"
+    spec.write_text("x")
+
+    with pytest.raises(RunnerError, match=r"\.py"):
+        SeleniumAdapter().preflight(spec)
+
+
+def test_mcp_rejects_spec_outside_cwd(tmp_path, monkeypatch):
+    from ninelives import cli
+    from ninelives.report.github import SpecOutcome
+
+    project = tmp_path / "proj"
+    project.mkdir()
+    outside_dir = tmp_path / "outside"
+    outside_dir.mkdir()
+    outside = outside_dir / "login.spec.js"
+    outside.write_text("x")
+
+    monkeypatch.chdir(project)
+
+    responses = _mcp_roundtrip(
+        [
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": "heal_test", "arguments": {"spec": str(outside)}},
+            }
+        ]
+    )
+    result = responses[0]["result"]
+    assert result["isError"] is True
+    text = result["content"][0]["text"]
+    assert "outside the working directory" in text
+
+    def fake_heal_one(spec, **kwargs):
+        return SpecOutcome(spec=spec.name, status="healed", detail="not applied — saved", diff="--- a\n+++ b")
+
+    monkeypatch.setattr(cli, "heal_one", fake_heal_one)
+    monkeypatch.setenv("NINELIVES_MCP_UNRESTRICTED", "1")
+
+    responses = _mcp_roundtrip(
+        [
+            {
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "tools/call",
+                "params": {"name": "heal_test", "arguments": {"spec": str(outside)}},
+            }
+        ]
+    )
+    result = responses[0]["result"]
+    assert result["isError"] is False
+
+
+def test_mcp_rejects_non_spec_file(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes.txt"
+    notes.write_text("x")
+
+    responses = _mcp_roundtrip(
+        [
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": "heal_test", "arguments": {"spec": str(notes)}},
+            },
+            {
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "tools/call",
+                "params": {"name": "heal_test", "arguments": {"spec": str(tmp_path / "missing.spec.js")}},
+            },
+        ]
+    )
+
+    result = responses[0]["result"]
+    assert result["isError"] is True
+    assert "not a recognized test spec" in result["content"][0]["text"]
+
+    result = responses[1]["result"]
+    assert result["isError"] is True
+    assert "spec not found" in result["content"][0]["text"]
