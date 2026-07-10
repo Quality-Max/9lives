@@ -291,8 +291,10 @@ def test_heal_working_copy_is_sibling_in_user_project(tmp_path, monkeypatch):
         seen["existed"] = Path(working_spec).exists()
         return RunResult(passed=True, exit_code=0)
 
+    from ninelives.runner import execute
+
     monkeypatch.setattr(cli, "find_user_project", lambda p: tmp_path)
-    monkeypatch.setattr(cli, "run_spec", fake_run_spec)
+    monkeypatch.setattr(execute, "run_spec", fake_run_spec)  # the playwright adapter routes through here
 
     outcome = cli.heal_one(spec, auto_apply=True)
     assert outcome.status == "passed"
@@ -329,8 +331,10 @@ def test_heal_verifies_final_attempt_when_max_iterations_one(tmp_path, monkeypat
             confidence=0.85,
         )
 
+    from ninelives.runner import execute
+
     monkeypatch.setattr(cli, "find_user_project", lambda p: None)
-    monkeypatch.setattr(cli, "run_spec", fake_run_spec)
+    monkeypatch.setattr(execute, "run_spec", fake_run_spec)  # the playwright adapter routes through here
     monkeypatch.setattr(cli.healing_strategy_selector, "classify_failure", lambda *a, **k: FailureType.LOCATOR_NOT_FOUND)
     monkeypatch.setattr(cli.healing_strategy_selector, "select_strategy", lambda f: HealingTier.TIER1_AUTO)
     monkeypatch.setattr(cli.tier1_healer, "heal", fake_heal)

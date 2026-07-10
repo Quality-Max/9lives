@@ -47,10 +47,18 @@ class Tier2AISuggest:
             metadata={"ai_reasoning": suggestion, "original_error": failure.error_message},
         )
 
+    # Framework → (human label, code-fence language) for the prompt.
+    FRAMEWORK_LABELS = {
+        "playwright": ("Playwright", "javascript"),
+        "cypress": ("Cypress", "javascript"),
+        "selenium": ("Selenium (Python + pytest)", "python"),
+    }
+
     def _build_prompt(self, failure: TestFailure) -> str:
         """Build prompt for AI suggestion."""
+        label, fence = self.FRAMEWORK_LABELS.get(failure.framework, ("Playwright", "javascript"))
         lines = [
-            "A Playwright test is failing. Please suggest a fix.",
+            f"A {label} test is failing. Please suggest a fix.",
             "",
             "## Error Details",
             f"Error Type: {failure.failure_type.value}",
@@ -61,7 +69,7 @@ class Tier2AISuggest:
         if failure.failed_selector:
             lines.extend([f"Failed Selector: {failure.failed_selector}", ""])
 
-        lines.extend(["## Test Code", "```javascript", failure.test_code, "```", ""])
+        lines.extend(["## Test Code", f"```{fence}", failure.test_code, "```", ""])
 
         if failure.page_html:
             lines.extend(["## Page state at failure (snippet)", "```", failure.page_html[:3000], "```", ""])
@@ -81,7 +89,7 @@ class Tier2AISuggest:
                 "REASONING: <your analysis>",
                 "CHANGES: <list of changes>",
                 "CODE:",
-                "```javascript",
+                f"```{fence}",
                 "<corrected code>",
                 "```",
             ]
@@ -98,11 +106,13 @@ class Tier2AISuggest:
 
     def _parse_suggestion(self, suggestion: str, original_code: str) -> str:
         """Parse the healed code from AI suggestion."""
-        code_match = re.search(r"CODE:\s*```(?:javascript|typescript)?\s*\n(.*?)```", suggestion, re.DOTALL | re.IGNORECASE)
+        code_match = re.search(
+            r"CODE:\s*```(?:javascript|typescript|python|js|ts|py)?\s*\n(.*?)```", suggestion, re.DOTALL | re.IGNORECASE
+        )
         if code_match:
             return code_match.group(1).strip()
 
-        code_block = re.search(r"```(?:javascript|typescript)?\s*\n(.*?)```", suggestion, re.DOTALL)
+        code_block = re.search(r"```(?:javascript|typescript|python|js|ts|py)?\s*\n(.*?)```", suggestion, re.DOTALL)
         if code_block:
             return code_block.group(1).strip()
 
