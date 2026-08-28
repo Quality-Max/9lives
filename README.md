@@ -87,7 +87,7 @@ As a [pre-commit](https://pre-commit.com) hook — heal (or just run) changed sp
 ```yaml
 repos:
   - repo: https://github.com/Quality-Max/9lives
-    rev: 4491111b73563be0351c47cff4e33e34638e605c  # v0.2.0 once tagged
+    rev: v0.2.0
     hooks:
       - id: 9lives-heal   # heals drifted selectors in place; assertion failures still block
       # - id: 9lives-run  # strict variant: run only, never modify
