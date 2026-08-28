@@ -11,14 +11,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from ninelives.frameworks import detect_framework, get_adapter  # noqa: E402
-from ninelives.frameworks.cypress import parse_mocha_json  # noqa: E402
-from ninelives.frameworks.selenium import SeleniumAdapter, parse_pytest_output  # noqa: E402
-from ninelives.healing.parse import extract_failed_selector  # noqa: E402
-from ninelives.healing.strategy import FailureType, TestFailure, healing_strategy_selector  # noqa: E402
-from ninelives.healing.tier1 import tier1_healer  # noqa: E402
-from ninelives.runner.execute import RunnerError  # noqa: E402
-
+from ninelives.frameworks import detect_framework, get_adapter
+from ninelives.frameworks.cypress import parse_mocha_json
+from ninelives.frameworks.selenium import SeleniumAdapter, parse_pytest_output
+from ninelives.healing.parse import extract_failed_selector
+from ninelives.healing.strategy import FailureType, TestFailure, healing_strategy_selector
+from ninelives.healing.tier1 import tier1_healer
+from ninelives.runner.execute import RunnerError
 
 # ---------- framework detection ----------
 
@@ -130,12 +129,12 @@ def test_parse_pytest_output_extracts_failure():
 
 
 def test_tier1_never_injects_playwright_waits_into_other_frameworks():
-    base = dict(
-        failure_type=FailureType.LOCATOR_TIMEOUT,
-        error_message="Timeout 30000ms exceeded waiting for selector",
-        failed_selector="button",  # immune to transformations → reaches the timing branch
-        test_code="await page.locator('button').click();",
-    )
+    base = {
+        "failure_type": FailureType.LOCATOR_TIMEOUT,
+        "error_message": "Timeout 30000ms exceeded waiting for selector",
+        "failed_selector": "button",  # immune to transformations → reaches the timing branch
+        "test_code": "await page.locator('button').click();",
+    }
     cypress = asyncio.run(tier1_healer.heal(TestFailure(**base, framework="cypress")))
     assert not cypress.success  # escalates instead of writing `await page.…` into Cypress code
 

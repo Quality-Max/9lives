@@ -66,7 +66,7 @@ def _require(binary: str) -> str:
 
 def _run(cmd: list[str], cwd: Path, timeout: int, env: dict | None = None) -> subprocess.CompletedProcess:
     merged_env = {**os.environ, **(env or {})}
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, env=merged_env)
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, env=merged_env, check=False)
 
 
 def ensure_browsers(project_dir: Path) -> None:

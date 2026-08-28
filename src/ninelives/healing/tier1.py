@@ -5,6 +5,7 @@ Offline and free: no LLM, no network.
 
 import logging
 import re
+from typing import ClassVar
 
 from .strategy import HealingResult, HealingTier, TestFailure
 
@@ -18,7 +19,7 @@ class Tier1LocatorHealer:
     simple attribute changes, visibility/scroll issues.
     """
 
-    TRANSFORMATIONS = [
+    TRANSFORMATIONS: ClassVar[list[tuple[str, str]]] = [
         (r"\.(\w+)-(\w+)", r'[class*="\1"]'),  # .foo-bar -> [class*="foo"]
         (r"#(\w+)", r'[id="\1"]'),  # Keep ID but different syntax
         (r'data-testid="([^"]+)"', r'[data-testid*="\1"]'),  # Partial match

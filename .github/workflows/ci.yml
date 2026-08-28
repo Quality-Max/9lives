@@ -18,8 +18,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv run --with pytest --no-project python -m pytest tests/ -q
-      - run: uv run --with ruff --no-project ruff check src/ tests/
-      - run: uv run --with ruff --no-project ruff format --check src/ tests/
+      - run: uv run --with 'ruff==0.16.5' --no-project ruff check src/ tests/
+      - run: uv run --with 'ruff==0.16.5' --no-project ruff format --check src/ tests/
 
   smoke:
     runs-on: ubuntu-latest
