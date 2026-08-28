@@ -385,7 +385,9 @@ def cmd_doctor() -> int:
     node_version = ""
     if node:
         try:
-            node_version = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=10).stdout.strip()
+            node_version = subprocess.run(
+                [node, "--version"], capture_output=True, text=True, timeout=10, check=False
+            ).stdout.strip()
         except (subprocess.TimeoutExpired, OSError):
             node_version = "found but not responding"
     checks.append(("node", bool(node), node_version or "not found — install Node.js >= 18"))

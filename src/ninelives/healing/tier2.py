@@ -2,6 +2,7 @@
 
 import logging
 import re
+from typing import ClassVar
 
 from ..llm.client import LLMClient, LLMError
 from .strategy import HealingResult, HealingTier, TestFailure
@@ -48,7 +49,7 @@ class Tier2AISuggest:
         )
 
     # Framework → (human label, code-fence language) for the prompt.
-    FRAMEWORK_LABELS = {
+    FRAMEWORK_LABELS: ClassVar[dict[str, tuple[str, str]]] = {
         "playwright": ("Playwright", "javascript"),
         "cypress": ("Cypress", "javascript"),
         "selenium": ("Selenium (Python + pytest)", "python"),

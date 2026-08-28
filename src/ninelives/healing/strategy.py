@@ -10,7 +10,7 @@ import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class HealingStrategySelector:
     # AssertionError ("Timed out retrying …: Expected to find element: `#x`")
     # and Selenium raises NoSuchElementException — both are selector drift,
     # not behavior change, and must never trip the assertion guard.
-    LOCATOR_OVERRIDE_PATTERNS = [
+    LOCATOR_OVERRIDE_PATTERNS: ClassVar[list[str]] = [
         r"expected to find (?:element|content)",
         r"never found it",
         r"unable to locate element",
@@ -113,7 +113,7 @@ class HealingStrategySelector:
         r"StaleElementReferenceException",
     ]
 
-    LOCATOR_PATTERNS = [
+    LOCATOR_PATTERNS: ClassVar[list[str]] = [
         r"locator.*not found",
         r"element.*not found",
         r"selector.*not found",
@@ -125,13 +125,13 @@ class HealingStrategySelector:
         r"strict mode violation",
     ]
 
-    TIMEOUT_PATTERNS = [
+    TIMEOUT_PATTERNS: ClassVar[list[str]] = [
         r"TimeoutError",
         r"Timeout.*exceeded",
         r"waiting for.*timed out",
     ]
 
-    VISIBILITY_PATTERNS = [
+    VISIBILITY_PATTERNS: ClassVar[list[str]] = [
         r"element.*not visible",
         r"element.*hidden",
         r"display.*none",
@@ -139,7 +139,7 @@ class HealingStrategySelector:
         r"not interactable",
     ]
 
-    ASSERTION_PATTERNS = [
+    ASSERTION_PATTERNS: ClassVar[list[str]] = [
         r"AssertionError",
         r"expect.*toBe",
         r"expect.*toHave",
@@ -148,7 +148,7 @@ class HealingStrategySelector:
         r"assertion failed",
     ]
 
-    NAVIGATION_PATTERNS = [
+    NAVIGATION_PATTERNS: ClassVar[list[str]] = [
         r"navigation.*failed",
         r"net::ERR",
         r"page.*crash",
@@ -156,7 +156,7 @@ class HealingStrategySelector:
         r"target.*closed",
     ]
 
-    FLOW_CHANGE_PATTERNS = [
+    FLOW_CHANGE_PATTERNS: ClassVar[list[str]] = [
         r"unexpected.*page",
         r"unexpected.*url",
         r"step.*missing",
@@ -243,9 +243,7 @@ class HealingStrategySelector:
             return False
         if "// fallback:" in failure.test_code.lower():
             return True
-        if "data-testid" in failure.failed_selector:
-            return True
-        return False
+        return "data-testid" in failure.failed_selector
 
     def _can_find_alternative(self, failure: TestFailure) -> bool:
         """Check if an alternative selector can be found in captured page state."""
@@ -259,9 +257,7 @@ class HealingStrategySelector:
 
         if id_match and id_match.group(1).lower() in page_lower:
             return True
-        if text_match and text_match.group(1).lower() in page_lower:
-            return True
-        return False
+        return bool(text_match and text_match.group(1).lower() in page_lower)
 
     def _is_simple_visibility_fix(self, failure: TestFailure) -> bool:
         """Check if visibility issue has a simple fix."""
@@ -273,9 +269,7 @@ class HealingStrategySelector:
         msg = failure.error_message.lower()
         if "expected" in msg and "received" in msg:
             return True
-        if "to be" in msg and "but" in msg:
-            return True
-        return False
+        return bool("to be" in msg and "but" in msg)
 
 
 healing_strategy_selector = HealingStrategySelector()

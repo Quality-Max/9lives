@@ -6,12 +6,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from ninelives.healing.parse import deduplicate_code, extract_code_from_response, extract_failed_selector  # noqa: E402
-from ninelives.healing.patch import diff_stats, generate_unified_diff  # noqa: E402
-from ninelives.healing.strategy import FailureType, HealingTier, TestFailure, healing_strategy_selector  # noqa: E402
-from ninelives.healing.tier1 import tier1_healer  # noqa: E402
-from ninelives.runner.artifacts import parse_error_context  # noqa: E402
-from ninelives.runner.execute import RunnerError, ensure_project_ready  # noqa: E402
+from ninelives.healing.parse import deduplicate_code, extract_code_from_response, extract_failed_selector
+from ninelives.healing.patch import diff_stats, generate_unified_diff
+from ninelives.healing.strategy import FailureType, HealingTier, TestFailure, healing_strategy_selector
+from ninelives.healing.tier1 import tier1_healer
+from ninelives.runner.artifacts import parse_error_context
+from ninelives.runner.execute import RunnerError, ensure_project_ready
 
 
 def test_classify_locator_failure():
@@ -140,7 +140,7 @@ def test_llm_client_prefers_subscription_cli(monkeypatch):
     assert client_mod.LLMClient().provider == "claude-code"
 
     # No CLI installed -> fall back to the API key.
-    monkeypatch.setattr(client_mod, "detect_agent_clis", lambda: [])
+    monkeypatch.setattr(client_mod, "detect_agent_clis", list)
     assert client_mod.LLMClient().provider == "anthropic"
 
 
@@ -252,7 +252,7 @@ def test_llm_client_available_falls_back_to_key_when_cli_absent(monkeypatch):
 
     monkeypatch.setenv("NINELIVES_PROVIDER", "claude-code")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
-    monkeypatch.setattr(client_mod, "detect_agent_clis", lambda: [])
+    monkeypatch.setattr(client_mod, "detect_agent_clis", list)
     c = client_mod.LLMClient()
     assert c.is_subscription
     assert c.available  # an API key makes it usable even if the CLI isn't there

@@ -81,6 +81,7 @@ def call_agent_cli(provider: str, system: str, user: str, timeout: int = CALL_TI
             capture_output=True,
             text=True,
             timeout=timeout,
+            check=False,
             cwd=scratch,
             **run_kwargs,
         )
