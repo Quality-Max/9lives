@@ -1,0 +1,74 @@
+# Complete a partial release without re-publishing.
+#
+# The release workflow is a pipeline: PyPI publish -> SBOM -> Sigstore sign ->
+# GitHub release. PyPI publishing is not idempotent, so when a step after it
+# fails (v0.2.0: the Sigstore action's TUF root had gone stale), the version is
+# live on PyPI but the tag has no GitHub release — and re-pushing the tag
+# cannot fix it because the publish step now fails first.
+#
+# This workflow finishes the job from the artifacts PyPI actually serves:
+# download them, verify their digests against the PyPI index, SBOM and sign
+# those exact bytes, and create the GitHub release. Nothing is rebuilt, so the
+# release assets are byte-identical to what `pip install` delivers.
+name: release-complete
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag whose GitHub release is missing (e.g. v0.2.0)"
+        required: true
+
+jobs:
+  complete:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Sigstore signing via the repo's CI identity
+      contents: write # GitHub release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+      - uses: astral-sh/setup-uv@v5
+      - name: Download the published artifacts from PyPI and verify digests
+        run: |
+          python3 - << 'PY'
+          import hashlib, json, os, urllib.request
+
+          tag = os.environ["TAG"]
+          version = tag.removeprefix("v")
+          with urllib.request.urlopen("https://pypi.org/pypi/9lives/json") as response:
+              index = json.load(response)
+          files = index["releases"].get(version)
+          assert files, f"PyPI has no 9lives {version} — this workflow completes releases, it does not create them"
+
+          os.makedirs("dist", exist_ok=True)
+          for entry in files:
+              path = os.path.join("dist", entry["filename"])
+              urllib.request.urlretrieve(entry["url"], path)
+              with open(path, "rb") as artifact:
+                  digest = hashlib.sha256(artifact.read()).hexdigest()
+              expected = entry["digests"]["sha256"]
+              assert digest == expected, f"{entry['filename']}: downloaded {digest}, PyPI says {expected}"
+              print(f"verified {entry['filename']} sha256={digest}")
+          PY
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+      # Identical to the release workflow from here on, over the verified bytes.
+      - name: SBOM (CycloneDX)
+        continue-on-error: true
+        run: |
+          uv venv /tmp/sbomenv
+          uv pip install --python /tmp/sbomenv dist/*.whl
+          uvx --from cyclonedx-bom cyclonedx-py environment /tmp/sbomenv -o 9lives.cdx.json
+      - name: Sign artifacts with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v3.5.0
+        with:
+          inputs: ./dist/*.whl ./dist/*.tar.gz
+      - name: GitHub release (artifacts + signatures + SBOM)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          gh release create "${{ github.event.inputs.tag }}" --generate-notes --verify-tag \
+            dist/*.whl dist/*.tar.gz dist/*.sigstore* *.cdx.json
