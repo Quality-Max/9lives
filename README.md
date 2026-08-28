@@ -72,6 +72,8 @@ claude mcp add 9lives -- uvx --from 9lives 9l mcp
 
 The behavior-vs-drift guard applies to agents too: a failing assertion comes back as `needs-human`, with an explicit note that forcing it green would mask a real bug. `heal_test` only accepts existing test files under the directory `9l mcp` was started in (`NINELIVES_MCP_UNRESTRICTED=1` lifts this), since healing a spec ultimately executes it.
 
+Healing is half the loop — the spec has to come from somewhere. 9lives' sibling MCP server, [qmax-mcp](https://github.com/Quality-Max/qmax-mcp) (`npx -y @qualitymax/qmax-mcp`, MIT), covers the other half: scan a page for defects, inspect it for stability-ranked locators and a testability score, generate a Playwright repro, and run it. Same rules — local, free, no account. A spec born on qmax-mcp's stability-ranked locators is exactly the kind 9lives can keep alive when it drifts.
+
 ## Heal on save & pre-commit
 
 `9l watch` makes healing part of the edit-save loop: it polls your specs (no OS-specific watchers, works everywhere) and runs the heal loop on whatever changed. `--yes` applies automatically.
