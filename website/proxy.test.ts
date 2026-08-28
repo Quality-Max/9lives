@@ -15,9 +15,32 @@ describe('installer content negotiation', () => {
     expect(response.headers.get('x-middleware-next')).toBe('1');
   });
 
+  it('matches HTML media types case-insensitively', () => {
+    const response = proxy(
+      new NextRequest('https://9lives.run/', {
+        headers: { accept: 'Text/Html; q=0.9' },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+  });
+
   it('redirects command-line GET requests to the installer', () => {
     const response = proxy(
       new NextRequest('https://9lives.run/', {
+        headers: { accept: '*/*' },
+      }),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe('https://9lives.run/install.sh');
+  });
+
+  it('redirects HEAD requests to the installer', () => {
+    const response = proxy(
+      new NextRequest('https://9lives.run/', {
+        method: 'HEAD',
         headers: { accept: '*/*' },
       }),
     );

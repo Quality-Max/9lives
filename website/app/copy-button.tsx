@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 
 export function CopyButton({ value }: { value: string }) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const mounted = useRef(true);
   const resetTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   useEffect(() => {
+    mounted.current = true;
+
     return () => {
+      mounted.current = false;
       if (resetTimer.current !== null) {
         window.clearTimeout(resetTimer.current);
       }
@@ -19,18 +23,29 @@ export function CopyButton({ value }: { value: string }) {
       window.clearTimeout(resetTimer.current);
     }
 
+    let nextStatus: 'copied' | 'failed';
+
     try {
       if (!navigator.clipboard?.writeText) {
         throw new Error('Clipboard API unavailable');
       }
 
       await navigator.clipboard.writeText(value);
-      setStatus('copied');
+      nextStatus = 'copied';
     } catch {
-      setStatus('failed');
+      nextStatus = 'failed';
     }
 
-    resetTimer.current = window.setTimeout(() => setStatus('idle'), 1800);
+    if (!mounted.current) {
+      return;
+    }
+
+    setStatus(nextStatus);
+    resetTimer.current = window.setTimeout(() => {
+      if (mounted.current) {
+        setStatus('idle');
+      }
+    }, 1800);
   }
 
   return (

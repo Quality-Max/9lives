@@ -46,6 +46,18 @@ describe('CopyButton', () => {
     await waitFor(() => expect(screen.getByText('Copy failed')).toBeTruthy());
   });
 
+  it('handles browsers without the Clipboard API', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: undefined,
+    });
+
+    render(<CopyButton value={installCommand} />);
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => expect(screen.getByText('Copy failed')).toBeTruthy());
+  });
+
   it('clears its reset timer when unmounted', async () => {
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -59,5 +71,24 @@ describe('CopyButton', () => {
     unmount();
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
+  });
+
+  it('does not update state or create a timer when copying finishes after unmount', async () => {
+    let finishCopy: (() => void) | undefined;
+    const pendingCopy = new Promise<void>((resolve) => {
+      finishCopy = resolve;
+    });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockReturnValue(pendingCopy) },
+    });
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+
+    const { unmount } = render(<CopyButton value={installCommand} />);
+    fireEvent.click(screen.getByRole('button'));
+    unmount();
+    await act(async () => finishCopy?.());
+
+    expect(setTimeoutSpy).not.toHaveBeenCalledWith(expect.any(Function), 1800);
   });
 });
