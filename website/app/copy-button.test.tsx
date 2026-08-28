@@ -73,6 +73,27 @@ describe('CopyButton', () => {
     expect(clearTimeoutSpy).toHaveBeenCalled();
   });
 
+  it('replaces the pending reset timer on a subsequent copy', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+
+    render(<CopyButton value={installCommand} />);
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => expect(screen.getByText('Copied')).toBeTruthy());
+
+    clearTimeoutSpy.mockClear();
+    setTimeoutSpy.mockClear();
+    await act(async () => fireEvent.click(screen.getByRole('button')));
+
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 1800);
+    expect(screen.getByText('Copied')).toBeTruthy();
+  });
+
   it('does not update state or create a timer when copying finishes after unmount', async () => {
     let finishCopy: (() => void) | undefined;
     const pendingCopy = new Promise<void>((resolve) => {

@@ -37,6 +37,13 @@ describe('installer content negotiation', () => {
     expect(response.headers.get('location')).toBe('https://9lives.run/install.sh');
   });
 
+  it('redirects GET requests without an Accept header to the installer', () => {
+    const response = proxy(new NextRequest('https://9lives.run/'));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe('https://9lives.run/install.sh');
+  });
+
   it('redirects HEAD requests to the installer', () => {
     const response = proxy(
       new NextRequest('https://9lives.run/', {
@@ -54,6 +61,18 @@ describe('installer content negotiation', () => {
       new NextRequest('https://9lives.run/', {
         method: 'POST',
         headers: { accept: 'application/json' },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+  });
+
+  it('serves HTML for non-GET methods', () => {
+    const response = proxy(
+      new NextRequest('https://9lives.run/', {
+        method: 'POST',
+        headers: { accept: 'text/html' },
       }),
     );
 

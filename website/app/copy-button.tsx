@@ -21,6 +21,7 @@ export function CopyButton({ value }: { value: string }) {
   async function copy() {
     if (resetTimer.current !== null) {
       window.clearTimeout(resetTimer.current);
+      resetTimer.current = null;
     }
 
     let nextStatus: 'copied' | 'failed';

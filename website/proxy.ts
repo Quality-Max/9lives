@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
-  const acceptsHtml = request.headers.get('accept')?.toLowerCase().includes('text/html');
+  const acceptsHtml = (request.headers.get('accept') ?? '')
+    .toLowerCase()
+    .includes('text/html');
   const canRedirectToInstaller = request.method === 'GET' || request.method === 'HEAD';
 
   if (canRedirectToInstaller && !acceptsHtml) {
