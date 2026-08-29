@@ -6,7 +6,7 @@ export function CopyButton({ value }: { value: string }) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
   const mounted = useRef(true);
   const copying = useRef(false);
-  const resetTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const resetTimer = useRef<number | null>(null);
 
   useEffect(() => {
     mounted.current = true;
