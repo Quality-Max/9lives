@@ -95,6 +95,14 @@ export default function Home() {
         </div>
 
         <p className="trust-line">MIT licensed <span>•</span> No account <span>•</span> No telemetry <span>•</span> Tier 1 works offline</p>
+        <a
+          className="featured-link"
+          href="https://aiinqa.com/ai-in-qa-issue-18/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          As featured in <strong>AI in QA</strong> — Issue #18 <span aria-hidden="true">↗</span>
+        </a>
       </section>
 
       <section className="section" id="how-it-works" aria-labelledby="how-heading">
