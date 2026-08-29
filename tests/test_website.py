@@ -22,6 +22,12 @@ def test_landing_page_keeps_install_and_ecosystem_links():
         assert destination in page
 
 
+def test_site_uses_the_original_qualitymax_favicon():
+    layout = (WEBSITE / "app" / "layout.tsx").read_text()
+
+    assert "https://qualitymax.io/static/img/favicon-color-round.png" in layout
+
+
 def test_root_uses_accept_header_for_installer_content_negotiation():
     proxy = (WEBSITE / "proxy.ts").read_text()
 

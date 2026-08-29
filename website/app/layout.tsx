@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description: 'Local-first self-healing QA that refuses to hide real bugs.',
     images: ['/og.png'],
   },
-  icons: { icon: 'https://qualitymax.io/favicon.ico' },
+  icons: { icon: 'https://qualitymax.io/static/img/favicon-color-round.png' },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
