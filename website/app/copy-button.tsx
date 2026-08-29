@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 export function CopyButton({ value }: { value: string }) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
   const mounted = useRef(true);
+  const copying = useRef(false);
   const resetTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   useEffect(() => {
@@ -19,6 +20,12 @@ export function CopyButton({ value }: { value: string }) {
   }, []);
 
   async function copy() {
+    if (copying.current) {
+      return;
+    }
+
+    copying.current = true;
+
     if (resetTimer.current !== null) {
       window.clearTimeout(resetTimer.current);
       resetTimer.current = null;
@@ -35,6 +42,8 @@ export function CopyButton({ value }: { value: string }) {
       nextStatus = 'copied';
     } catch {
       nextStatus = 'failed';
+    } finally {
+      copying.current = false;
     }
 
     if (!mounted.current) {
