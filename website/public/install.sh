@@ -1,0 +1,61 @@
+#!/bin/sh
+# 9lives installer — served at https://9lives.run
+#   curl -sL 9lives.run | sh
+#
+# Installs the 9lives CLI (`9l`) into an isolated environment via uv.
+# No account, no telemetry. MIT. https://github.com/Quality-Max/9lives
+set -e
+
+PAW="🐾"
+
+# Colors — only when stdout is a real terminal (curl | sh keeps stdout on the tty)
+if [ -t 1 ]; then
+  C_WORD="$(printf '\033[1;38;5;51m')"  # bold cyan kitten + wordmark
+  C_DIM="$(printf '\033[2m')"
+  C_RST="$(printf '\033[0m')"
+else
+  C_WORD=''; C_DIM=''; C_RST=''
+fi
+
+say() { printf '%s %s\n' "$PAW" "$1"; }
+
+banner() {
+  printf '\n%s' "$C_WORD"
+  cat <<'CAT'
+        /\_/\        ___  _ _
+       ( o.o )      / _ \| (_)_ _____ ___
+        > ^ <      | (_) | | \ V / -_|_-<
+       /     \      \__, |_|_|\_/\___/__/
+      ( |   | )       /_/
+       \_(_)_/
+CAT
+  printf '%s%s %snine lives for your tests — self-healing QA for the coding-agent era%s\n\n' \
+    "$C_RST" "$PAW" "$C_DIM" "$C_RST"
+}
+
+banner
+
+# 1. Ensure uv (installs Python itself if needed, keeps 9lives isolated)
+if ! command -v uv >/dev/null 2>&1; then
+  say "installing uv (isolated Python package manager) …"
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  # Pick up the fresh install for this shell
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# 2. Install/upgrade 9lives with both LLM extras (subscription mode needs neither)
+say "installing 9lives …"
+uv tool install --upgrade '9lives[all]' >/dev/null
+
+# 3. Sanity check
+if command -v 9l >/dev/null 2>&1; then
+  say "installed: $(9l --version)"
+else
+  say "installed — open a new shell (or add ~/.local/bin to PATH), then run: 9l doctor"
+  exit 0
+fi
+
+say "next steps:"
+printf '   9l doctor            # check node/playwright/agent CLIs\n'
+printf '   9l heal your.spec.ts # resurrect a failing test\n'
+say "your tests have nine lives."
