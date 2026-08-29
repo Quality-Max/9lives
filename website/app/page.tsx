@@ -60,7 +60,7 @@ export default function Home() {
     <main>
       <header className="site-header">
         <a className="qualitymax-brand" href="https://qualitymax.io" aria-label="QualityMax home">
-          <Image src="https://qualitymax.io/logo.svg" alt="QualityMax" width={200} height={44} unoptimized />
+          <Image src="https://qualitymax.io/static/img/qualitymax-logo-white.png" alt="QualityMax" width={200} height={30} unoptimized />
         </a>
         <nav aria-label="Primary navigation">
           <a href="#how-it-works">How it works</a>
@@ -156,7 +156,7 @@ export default function Home() {
 
       <footer>
         <a className="qualitymax-brand" href="https://qualitymax.io" aria-label="QualityMax home">
-          <Image src="https://qualitymax.io/logo.svg" alt="QualityMax" width={200} height={44} unoptimized />
+          <Image src="https://qualitymax.io/static/img/qualitymax-logo-white.png" alt="QualityMax" width={200} height={30} unoptimized />
         </a>
         <p>Open self-healing QA for the coding-agent era.</p>
         <span>© 2026 QualityMax</span>
