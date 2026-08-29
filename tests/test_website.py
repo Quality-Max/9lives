@@ -15,6 +15,7 @@ def test_landing_page_keeps_install_and_ecosystem_links():
     assert page.count('href="https://qualitymax.io"') == 2
     for destination in (
         "https://qmax.run",
+        "https://aiinqa.com/ai-in-qa-issue-18/",
         "https://github.com/Quality-Max/qmax-code",
         "https://github.com/Quality-Max/qualitymax-grader",
         "https://github.com/Quality-Max/free-qa-skills",

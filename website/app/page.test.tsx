@@ -23,4 +23,14 @@ describe('QualityMax branding', () => {
       ),
     ).toBe(true);
   });
+
+  it('links to the AI in QA feature', () => {
+    render(<Home />);
+
+    const featureLink = screen.getByRole('link', { name: /as featured in ai in qa — issue #18/i });
+
+    expect(featureLink.getAttribute('href')).toBe('https://aiinqa.com/ai-in-qa-issue-18/');
+    expect(featureLink.getAttribute('target')).toBe('_blank');
+    expect(featureLink.getAttribute('rel')).toBe('noreferrer');
+  });
 });
