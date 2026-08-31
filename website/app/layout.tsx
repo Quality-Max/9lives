@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     url: 'https://9lives.run',
     siteName: '9Lives',
     type: 'website',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: '9Lives — Your tests have nine lives' }],
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: '9Lives by QualityMax — Your tests have nine lives' }],
   },
   twitter: {
     card: 'summary_large_image',
