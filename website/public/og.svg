@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">9Lives by QualityMax</title>
+  <desc id="desc">Local-first test healing. Your tests have nine lives.</desc>
+  <defs>
+    <linearGradient id="copy-safe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity=".98"/>
+      <stop offset=".48" stop-color="#fff" stop-opacity=".93"/>
+      <stop offset=".66" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="command" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".94"/>
+      <stop offset="1" stop-color="#f5f3ff" stop-opacity=".88"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-40%" width="140%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#3730a3" flood-opacity=".10"/>
+    </filter>
+  </defs>
+
+  <image href="og-bg.png" width="1200" height="630" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="840" height="630" fill="url(#copy-safe)"/>
+
+  <image href="9lives-qualitymax-logo.png" x="72" y="58" width="226" height="34"/>
+  <g transform="translate(324 54)">
+    <rect width="238" height="42" rx="21" fill="#fff" stroke="#ddd6fe"/>
+    <circle cx="22" cy="21" r="5" fill="#6366f1"/>
+    <text x="36" y="26" fill="#4c1d95" font-family="Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.1">OPEN SOURCE · TEST HEALING</text>
+  </g>
+
+  <text x="72" y="184" fill="#6366f1" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="3">9LIVES</text>
+  <text x="72" y="260" fill="#18181b" font-family="Arial, sans-serif" font-size="59" font-weight="700" letter-spacing="-1.8">Your tests have</text>
+  <text x="72" y="328" fill="#18181b" font-family="Arial, sans-serif" font-size="59" font-weight="700" letter-spacing="-1.8">nine lives<tspan fill="#6366f1">.</tspan></text>
+  <text x="74" y="382" fill="#52525b" font-family="Arial, sans-serif" font-size="22">Heal selector drift. Keep the signal. Review the diff.</text>
+
+  <g transform="translate(72 426)" filter="url(#shadow)">
+    <rect width="444" height="68" rx="16" fill="url(#command)" stroke="#e4e4e7"/>
+    <circle cx="26" cy="34" r="6" fill="#34d399"/>
+    <text x="48" y="42" fill="#27272a" font-family="Menlo, Consolas, monospace" font-size="20">curl -sL 9lives.run | sh</text>
+  </g>
+
+  <g transform="translate(74 561)">
+    <circle cx="5" cy="-7" r="5" fill="#6366f1"/>
+    <text x="22" y="0" fill="#3f3f46" font-family="Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="1.3">9LIVES.RUN</text>
+  </g>
+</svg>
