@@ -76,7 +76,8 @@ code { font-family: var(--font-geist-mono), monospace; }
 .command-card button:hover, .command-card button:focus-visible, .inline-command button:hover, .inline-command button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .trust-line { margin: 20px 0 0; color: #78738f; font-size: 12px; }
 .trust-line span { margin: 0 8px; color: #4b465e; }
-.featured-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 20px; padding: 8px 12px; border: 1px solid rgba(85, 230, 255, .18); border-radius: 999px; color: #9f9ab5; background: rgba(85, 230, 255, .04); font-size: 12px; transition: border-color .2s, color .2s, background .2s; }
+.featured-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+.featured-link { display: inline-flex; align-items: center; gap: 5px; padding: 8px 12px; border: 1px solid rgba(85, 230, 255, .18); border-radius: 999px; color: #9f9ab5; background: rgba(85, 230, 255, .04); font-size: 12px; transition: border-color .2s, color .2s, background .2s; }
 .featured-link strong { color: #dbd7ea; }
 .featured-link > span { margin-left: 2px; color: var(--cyan); }
 .featured-link:hover, .featured-link:focus-visible { border-color: rgba(85, 230, 255, .5); color: #fff; background: rgba(85, 230, 255, .08); outline: none; }

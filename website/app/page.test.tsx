@@ -33,4 +33,14 @@ describe('QualityMax branding', () => {
     expect(featureLink.getAttribute('target')).toBe('_blank');
     expect(featureLink.getAttribute('rel')).toBe('noreferrer');
   });
+
+  it('links to the awesome-python-testing listing', () => {
+    render(<Home />);
+
+    const listingLink = screen.getByRole('link', { name: /listed on awesome-python-testing/i });
+
+    expect(listingLink.getAttribute('href')).toBe('https://github.com/cleder/awesome-python-testing');
+    expect(listingLink.getAttribute('target')).toBe('_blank');
+    expect(listingLink.getAttribute('rel')).toBe('noreferrer');
+  });
 });
