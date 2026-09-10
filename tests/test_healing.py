@@ -4,6 +4,8 @@ import asyncio
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from ninelives.healing.parse import deduplicate_code, extract_code_from_response, extract_failed_selector
@@ -421,3 +423,266 @@ def test_tier1_prefers_stable_anchor_over_class():
     result = asyncio.run(tier1_healer.heal(failure))
     assert result.success
     assert result.metadata.get("anchor") == "testid"
+
+
+# ---------- issue #19: run timeout, scratch-file cleanup, Tier 2 scope ----------
+
+
+def test_run_timeout_default_env_and_flag(monkeypatch):
+    from ninelives.runner import execute
+
+    monkeypatch.setattr(execute, "_run_timeout_override", None)
+    monkeypatch.delenv(execute.RUN_TIMEOUT_ENV, raising=False)
+    assert execute.run_timeout() == execute.RUN_TIMEOUT_SECONDS
+
+    monkeypatch.setenv(execute.RUN_TIMEOUT_ENV, "900")
+    assert execute.run_timeout() == 900
+
+    execute.set_run_timeout(1200)  # --run-timeout beats the environment
+    assert execute.run_timeout() == 1200
+    execute.set_run_timeout(None)
+    assert execute.run_timeout() == 900
+
+    with execute.override_run_timeout(42):
+        assert execute.run_timeout() == 42
+    assert execute.run_timeout() == 900  # scoped override restored
+
+
+@pytest.mark.parametrize("bad", ["abc", "0", "-5", "1.5"])
+def test_run_timeout_rejects_bad_values(monkeypatch, bad):
+    from ninelives.runner import execute
+
+    monkeypatch.setattr(execute, "_run_timeout_override", None)
+    monkeypatch.setenv(execute.RUN_TIMEOUT_ENV, bad)
+    with pytest.raises(RunnerError, match=execute.RUN_TIMEOUT_ENV):
+        execute.run_timeout()
+    with pytest.raises(RunnerError, match="--run-timeout"):
+        execute.set_run_timeout(0)
+
+
+def test_spec_timeout_is_a_handled_error_not_a_traceback(monkeypatch, tmp_path):
+    """A spec that outruns its budget must surface as RunnerError with the
+    knob to turn — not as a raw subprocess.TimeoutExpired (issue #19)."""
+    import subprocess
+
+    from ninelives.runner import execute
+
+    def fake_run(cmd, **kwargs):
+        raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+
+    monkeypatch.setattr(execute.subprocess, "run", fake_run)
+    monkeypatch.setattr(execute, "_run_timeout_override", None)
+    monkeypatch.setenv(execute.RUN_TIMEOUT_ENV, "7")
+
+    with pytest.raises(execute.RunTimeoutError) as info:
+        execute.run_test_command(["npx", "playwright", "test", "x.spec.ts"], tmp_path)
+    message = str(info.value)
+    assert "7s" in message and "--run-timeout" in message and execute.RUN_TIMEOUT_ENV in message
+    assert isinstance(info.value, RunnerError)  # main() turns it into `🐾 error:` + exit 2
+
+    with pytest.raises(execute.RunTimeoutError, match="timed out after 5s"):
+        execute._run(["/usr/bin/npm", "install"], tmp_path, 5)
+
+
+def test_cli_run_timeout_flag_reaches_runner(monkeypatch, tmp_path):
+    from ninelives import cli
+    from ninelives.runner import execute
+
+    monkeypatch.setattr(execute, "_run_timeout_override", None)
+    monkeypatch.setattr(cli, "cmd_run", lambda specs, framework: 0)
+    assert cli.main(["run", str(tmp_path / "x.spec.ts"), "--run-timeout", "600"]) == 0
+    assert execute.run_timeout() == 600
+
+    assert cli.main(["run", str(tmp_path / "x.spec.ts"), "--run-timeout", "0"]) == 2  # handled, not a traceback
+    execute.set_run_timeout(None)
+
+
+def test_bad_run_timeout_env_does_not_block_diagnostic_commands(monkeypatch, tmp_path):
+    from ninelives import cli
+    from ninelives.runner import execute
+
+    monkeypatch.setattr(execute, "_run_timeout_override", None)
+    monkeypatch.setenv(execute.RUN_TIMEOUT_ENV, "abc")
+    monkeypatch.setattr(cli, "cmd_doctor", lambda: 0)
+    monkeypatch.setattr(cli, "cmd_report", lambda path, md_path: 0)
+
+    assert cli.main(["doctor"]) == 0
+    assert cli.main(["report", str(tmp_path)]) == 0
+    assert cli.main(["run", str(tmp_path / "x.spec.ts")]) == 2
+
+
+def test_heal_timeout_leaves_spec_untouched_and_removes_working_copy(tmp_path, monkeypatch):
+    """When the run itself cannot complete, heal must emit nothing: no diff,
+    no .healed copy, no stray _9lives_heal_* spec in the test directory."""
+    from ninelives import cli
+    from ninelives.runner import execute
+
+    spec = tmp_path / "login.spec.js"
+    original = "await page.locator('#x').click();\n"
+    spec.write_text(original)
+
+    def fake_run_spec(working_spec):
+        raise execute.RunTimeoutError("spec exceeded the 300s run timeout")
+
+    monkeypatch.setattr(cli, "find_user_project", lambda p: tmp_path)
+    monkeypatch.setattr(execute, "run_spec", fake_run_spec)
+
+    with pytest.raises(RunnerError):
+        cli.heal_one(spec, auto_apply=True)
+
+    assert spec.read_text() == original
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["login.spec.js"]
+
+
+def test_heal_sweeps_stale_working_copy_from_killed_process(tmp_path, monkeypatch):
+    """SIGKILL never reaches `finally`; the next heal cleans up what it left behind,
+    but leaves a copy whose owning process is still alive."""
+    from ninelives import cli
+    from ninelives.runner import execute
+    from ninelives.runner.execute import RunResult
+
+    spec = tmp_path / "login.spec.js"
+    spec.write_text("await page.locator('#x').click();\n")
+    stale = tmp_path / "_9lives_heal_999999_login.spec.js"
+    stale.write_text("// leftover from a killed heal\n")
+    live = tmp_path / "_9lives_heal_424242_login.spec.js"
+    live.write_text("// concurrent heal still running\n")
+    other = tmp_path / "_9lives_heal_999999_other.spec.js"
+    other.write_text("// stale copy of a different spec\n")
+
+    monkeypatch.setattr(cli, "_pid_alive", lambda pid: pid == 424242)
+    monkeypatch.setattr(cli, "find_user_project", lambda p: tmp_path)
+    monkeypatch.setattr(execute, "run_spec", lambda working_spec: RunResult(passed=True, exit_code=0))
+
+    cli.heal_one(spec, auto_apply=True)
+
+    assert not stale.exists()
+    assert live.exists()
+    assert not other.exists()
+
+
+def test_heal_sigterm_unwinds_through_cleanup(tmp_path, monkeypatch):
+    import os
+    import signal
+
+    from ninelives import cli
+    from ninelives.runner import execute
+
+    spec = tmp_path / "login.spec.js"
+    spec.write_text("await page.locator('#x').click();\n")
+
+    def fake_run_spec(working_spec):
+        os.kill(os.getpid(), signal.SIGTERM)  # delivered synchronously to this thread
+        raise AssertionError("SIGTERM handler should have raised SystemExit")
+
+    monkeypatch.setattr(cli, "find_user_project", lambda p: tmp_path)
+    monkeypatch.setattr(execute, "run_spec", fake_run_spec)
+    before = signal.getsignal(signal.SIGTERM)
+
+    with pytest.raises(SystemExit) as info:
+        cli.heal_one(spec, auto_apply=True)
+
+    assert info.value.code == 128 + signal.SIGTERM
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["login.spec.js"]
+    assert signal.getsignal(signal.SIGTERM) == before  # handler restored
+
+
+def test_comment_changes_are_detected_even_alongside_code_changes():
+    from ninelives.healing.patch import comments_changed
+
+    code = "// login flow\nawait page.locator('#old').click();\n"
+    assert comments_changed(
+        code, "// Login flow — run with: npx playwright test login\n// verified\nawait page.locator('#old').click();\n"
+    )
+    assert comments_changed(code, "// verified\nawait page.locator('#new').click();\n")
+    assert not comments_changed(code, "// login flow\nawait page.locator('#new').click();\n")
+    assert not comments_changed(code, code)
+    py = "# helper\ndriver.find_element(By.ID, 'old')\n"
+    assert comments_changed(py, "# helper (rewritten)\ndriver.find_element(By.ID, 'old')\n")
+
+
+def test_tier2_rejects_comment_edits_and_keeps_trailing_newline():
+    """Reject invented prose whether or not the model also fixes the locator."""
+    from ninelives.healing.strategy import FailureType, TestFailure
+    from ninelives.healing.tier2 import Tier2AISuggest
+
+    code = "// login flow\nawait page.locator('input[name=\"user\"]').fill('a');\n"
+    failure = TestFailure(
+        failure_type=FailureType.LOCATOR_NOT_FOUND,
+        error_message="locator not found",
+        failed_selector='input[name="user"]',
+        stack_trace="",
+        test_code=code,
+        framework="playwright",
+    )
+
+    class FakeClient:
+        def __init__(self, reply):
+            self.reply = reply
+
+        def call(self, **kwargs):
+            return self.reply
+
+    prose_only = (
+        "REASONING: x\nCHANGES:\n- clarified header\nCODE:\n```javascript\n"
+        "// Login flow. Run with `npx playwright test login-flow.spec.ts` (either works, both verified)\n"
+        "await page.locator('input[name=\"user\"]').fill('a');\n```"
+    )
+    result = asyncio.run(Tier2AISuggest(client=FakeClient(prose_only)).suggest(failure))
+    assert result.success is False
+    assert "comments" in result.metadata["reason"]
+    assert result.healed_code is None
+
+    mixed_edit = (
+        "REASONING: x\nCHANGES:\n- switch to label and update header\nCODE:\n```javascript\n"
+        "// Login flow. Verified against staging; both selectors tested and working.\n"
+        "await page.getByLabel('User').fill('a');\n```"
+    )
+    result = asyncio.run(Tier2AISuggest(client=FakeClient(mixed_edit)).suggest(failure))
+    assert result.success is False
+    assert "comments" in result.metadata["reason"]
+    assert result.healed_code is None
+
+    real_fix = (
+        "REASONING: x\nCHANGES:\n- switch to label\nCODE:\n```javascript\n"
+        "// login flow\nawait page.getByLabel('User').fill('a');\n```"
+    )
+    result = asyncio.run(Tier2AISuggest(client=FakeClient(real_fix)).suggest(failure))
+    assert result.success is True
+    assert result.healed_code.endswith("\n")  # `.strip()` used to drop the file's final newline
+    assert result.healed_code == "// login flow\nawait page.getByLabel('User').fill('a');\n"
+
+    prompt = Tier2AISuggest(client=FakeClient(""))._build_prompt(failure)
+    assert "verified" in prompt and "Do not edit comments" in prompt
+
+
+def test_version_is_single_sourced():
+    """The build and runtime both read the version from ninelives.__init__."""
+    import re
+
+    pyproject = (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text()
+    project_section = re.search(r"(?ms)^\[project\]\s*(.*?)(?=^\[|\Z)", pyproject).group(1)
+    hatch_version_section = re.search(r"(?ms)^\[tool\.hatch\.version\]\s*(.*?)(?=^\[|\Z)", pyproject).group(1)
+
+    assert re.search(r'^dynamic\s*=\s*\[\s*"version"\s*\]', project_section, re.MULTILINE)
+    assert not re.search(r"^version\s*=", project_section, re.MULTILINE)
+    assert re.search(r'^path\s*=\s*"src/ninelives/__init__\.py"', hatch_version_section, re.MULTILINE)
+
+
+def test_cleanup_restores_default_for_non_python_signal_handler(monkeypatch):
+    from ninelives import cli
+
+    calls = []
+
+    def fake_signal(signum, handler):
+        calls.append((signum, handler))
+
+    monkeypatch.setattr(cli.signal, "signal", fake_signal)
+    supported = [getattr(cli.signal, name, None) for name in ("SIGTERM", "SIGHUP")]
+    supported = [signum for signum in supported if signum is not None]
+
+    with cli._cleanup_on_termination():
+        pass
+
+    assert [signum for signum, _ in calls[: len(supported)]] == supported
+    assert calls[len(supported) :] == [(signum, cli.signal.SIG_DFL) for signum in supported]

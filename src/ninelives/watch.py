@@ -11,6 +11,8 @@ import re
 import time
 from pathlib import Path
 
+from .constants import WORKING_COPY_PREFIX
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_INTERVAL_SECONDS = 1.0
@@ -38,7 +40,7 @@ IGNORED_DIRS = {
 
 def is_spec_file(path: Path) -> bool:
     name = path.name
-    if name.startswith("_9lives_heal_") or name.endswith(".healed"):
+    if name.startswith(WORKING_COPY_PREFIX) or name.endswith(".healed"):
         return False  # our own working copies / saved heals
     return bool(SPEC_NAME.search(name))
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "9lives"
-version = "0.2.0"
+dynamic = ["version"]  # single source of truth: src/ninelives/__init__.py (see [tool.hatch.version])
 description = "Self-healing QA for the coding-agent era. Your tests have nine lives."
 readme = "README.md"
 license = { text = "MIT" }
@@ -39,6 +39,9 @@ all = ["anthropic>=0.40", "openai>=1.50"]
 [project.urls]
 Homepage = "https://9lives.run"
 Repository = "https://github.com/Quality-Max/9lives"
+
+[tool.hatch.version]
+path = "src/ninelives/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ninelives"]

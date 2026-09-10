@@ -35,6 +35,7 @@ Requires Node.js ≥ 18 (Playwright itself runs on Node). Check your setup with 
 9l run <spec>         # run a spec locally; screenshots/videos/traces in .9lives/
 9l heal <spec>        # run → heal → re-run → diff → apply on confirm
 9l heal <spec> --yes  # CI mode: apply automatically, exit code tells the story
+9l heal <spec> --run-timeout 900   # long suite? one spec run may take up to 15 min (default 300s)
 9l watch [dir]        # heal on save — polls specs, heals whatever changes
 9l report             # brittle-selector report from your local heal history
 9l mcp                # serve heal_test/run_test as MCP tools for coding agents
@@ -42,6 +43,8 @@ Requires Node.js ≥ 18 (Playwright itself runs on Node). Check your setup with 
 ```
 
 Works inside an existing Playwright project (uses your `package.json`) or on a bare `.spec.ts` file (scaffolds an ephemeral project automatically). All commands accept multiple specs/globs.
+
+One spec run gets 300 seconds by default. Suites that legitimately take longer can raise it with `--run-timeout <seconds>` on `run`/`heal`/`watch`, or `NINELIVES_RUN_TIMEOUT=<seconds>` in the environment (the MCP tools take `run_timeout` too). When the budget is exceeded, 9lives stops with a clear error and changes nothing — a heal that never observed a test result never emits a diff.
 
 ## Cypress & Selenium too
 

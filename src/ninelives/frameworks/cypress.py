@@ -10,7 +10,7 @@ import json
 import logging
 from pathlib import Path
 
-from ..runner.execute import RUN_TIMEOUT_SECONDS, RunnerError, RunResult, TestError, _require, _run
+from ..runner.execute import RunnerError, RunResult, TestError, _require, run_test_command
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class CypressAdapter:
 
         cmd = [npx, "cypress", "run", "--spec", str(spec), "--reporter", "json", "--quiet"]
         logger.info("Running: %s (cwd=%s)", " ".join(cmd), project)
-        proc = _run(cmd, project, RUN_TIMEOUT_SECONDS)
+        proc = run_test_command(cmd, project)
 
         errors, duration_ms = parse_mocha_json(proc.stdout)
         passed = proc.returncode == 0

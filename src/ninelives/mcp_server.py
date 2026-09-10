@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .runner.execute import RunnerError
+from .runner.execute import RunnerError, override_run_timeout
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,11 @@ TOOLS = [
                     "enum": ["auto", "playwright", "cypress", "selenium"],
                     "default": "auto",
                 },
+                "run_timeout": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Max seconds for one spec run (default 300, or NINELIVES_RUN_TIMEOUT)",
+                },
             },
             "required": ["spec"],
         },
@@ -100,6 +105,11 @@ TOOLS = [
                     "type": "string",
                     "enum": ["auto", "playwright", "cypress", "selenium"],
                     "default": "auto",
+                },
+                "run_timeout": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Max seconds for one spec run (default 300, or NINELIVES_RUN_TIMEOUT)",
                 },
             },
             "required": ["spec"],
@@ -195,7 +205,7 @@ def _heal_test(args: dict) -> dict:
     apply = bool(args.get("apply", False))
     # The heal loop prints progress to stdout, which would corrupt the
     # protocol stream — reroute it to stderr (host shows it as server logs).
-    with contextlib.redirect_stdout(sys.stderr):
+    with contextlib.redirect_stdout(sys.stderr), override_run_timeout(args.get("run_timeout")):
         outcome = heal_one(
             spec,
             auto_apply=apply,
@@ -222,6 +232,6 @@ def _run_test(args: dict) -> dict:
     from .cli import run_one
 
     spec = _validated_spec(args["spec"])
-    with contextlib.redirect_stdout(sys.stderr):
+    with contextlib.redirect_stdout(sys.stderr), override_run_timeout(args.get("run_timeout")):
         outcome = run_one(spec, framework=args.get("framework", "auto"))
     return {"spec": str(spec), "status": outcome.status, "detail": outcome.detail}

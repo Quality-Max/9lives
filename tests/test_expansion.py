@@ -257,12 +257,13 @@ def test_mcp_heal_test_returns_structured_result(tmp_path, monkeypatch):
 
 
 def test_watch_scan_finds_specs_and_ignores_noise(tmp_path):
-    from ninelives.watch import changed_specs, scan
+    from ninelives.constants import WORKING_COPY_PREFIX
+    from ninelives.watch import changed_specs, is_spec_file, scan
 
     (tmp_path / "login.spec.js").write_text("x")
     (tmp_path / "checkout.cy.ts").write_text("x")
     (tmp_path / "test_flow.py").write_text("x")
-    (tmp_path / "_9lives_heal_1_login.spec.js").write_text("x")  # our own working copy
+    (tmp_path / f"{WORKING_COPY_PREFIX}1_login.spec.js").write_text("x")  # our own working copy
     (tmp_path / "login.spec.js.healed").write_text("x")
     (tmp_path / "notes.txt").write_text("x")
     (tmp_path / "node_modules").mkdir()
@@ -271,6 +272,7 @@ def test_watch_scan_finds_specs_and_ignores_noise(tmp_path):
     snapshot = scan([tmp_path])
     names = {p.name for p in snapshot}
     assert names == {"login.spec.js", "checkout.cy.ts", "test_flow.py"}
+    assert not is_spec_file(tmp_path / f"{WORKING_COPY_PREFIX}2_other.spec.js")
 
     import os
 
