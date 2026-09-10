@@ -15,15 +15,20 @@ auto-detected per spec, or forced with --framework.
 
 import argparse
 import asyncio
+import contextlib
 import logging
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import threading
+from collections.abc import Iterator
 from pathlib import Path
 
 from . import __version__
+from .constants import WORKING_COPY_PREFIX
 from .frameworks import FRAMEWORKS, get_adapter
 from .healing.parse import extract_failed_selector
 from .healing.patch import diff_stats, generate_unified_diff
@@ -33,7 +38,8 @@ from .healing.tier2 import Tier2AISuggest
 from .llm.agent_cli import detect_agent_clis
 from .llm.client import LLMClient
 from .report.github import SpecOutcome, write_github_reports
-from .runner.execute import RunnerError
+from .runner import execute
+from .runner.execute import RUN_TIMEOUT_ENV, RUN_TIMEOUT_SECONDS, RunnerError
 from .runner.project import find_user_project
 
 logger = logging.getLogger(__name__)
@@ -51,6 +57,16 @@ def _add_framework_flag(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _add_run_timeout_flag(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--run-timeout",
+        type=int,
+        default=None,
+        metavar="SECONDS",
+        help=f"max seconds for one spec run (default: {RUN_TIMEOUT_SECONDS}, or {RUN_TIMEOUT_ENV})",
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="9l", description="9lives — your tests have nine lives. https://9lives.run")
     parser.add_argument("--version", action="version", version=f"9lives {__version__}")
@@ -60,18 +76,21 @@ def main(argv: list[str] | None = None) -> int:
     run_parser = sub.add_parser("run", help="run specs locally")
     run_parser.add_argument("specs", type=Path, nargs="+")
     _add_framework_flag(run_parser)
+    _add_run_timeout_flag(run_parser)
 
     heal_parser = sub.add_parser("heal", help="run specs and heal them if they fail")
     heal_parser.add_argument("specs", type=Path, nargs="+")
     heal_parser.add_argument("-y", "--yes", action="store_true", help="apply healed code without confirmation")
     heal_parser.add_argument("--max-iterations", type=int, default=MAX_HEALING_ITERATIONS)
     _add_framework_flag(heal_parser)
+    _add_run_timeout_flag(heal_parser)
 
     watch_parser = sub.add_parser("watch", help="watch specs and heal on save")
     watch_parser.add_argument("paths", type=Path, nargs="*", help="spec files or directories (default: cwd)")
     watch_parser.add_argument("-y", "--yes", action="store_true", help="apply healed code without confirmation")
     watch_parser.add_argument("--interval", type=float, default=1.0, help="poll interval in seconds")
     _add_framework_flag(watch_parser)
+    _add_run_timeout_flag(watch_parser)
 
     report_parser = sub.add_parser("report", help="brittle-selector report from heal history")
     report_parser.add_argument("path", type=Path, nargs="?", default=Path("."), help="project root to scan")
@@ -87,6 +106,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     try:
+        if args.command in {"run", "heal", "watch"}:
+            # Validate only for commands that run specs. Diagnostic/reporting
+            # commands must remain usable when this environment variable is bad.
+            execute.set_run_timeout(args.run_timeout)
+            execute.run_timeout()
         if args.command == "run":
             return cmd_run(args.specs, framework=args.framework)
         if args.command == "heal":
@@ -180,16 +204,86 @@ def heal_one(
     if adapter.name == "playwright" and not find_user_project(spec.parent):
         working_spec = Path(tempfile.mkdtemp(prefix="ninelives-heal-")) / spec.name
     else:
-        working_spec = spec.with_name(f"_9lives_heal_{os.getpid()}_{spec.name}")
+        _sweep_stale_working_copies(spec)
+        working_spec = spec.with_name(f"{WORKING_COPY_PREFIX}{os.getpid()}_{spec.name}")
 
     try:
-        return _heal_loop(
-            spec, working_spec, adapter, auto_apply=auto_apply, max_iterations=max_iterations, interactive=interactive
-        )
+        with _cleanup_on_termination():
+            return _heal_loop(
+                spec, working_spec, adapter, auto_apply=auto_apply, max_iterations=max_iterations, interactive=interactive
+            )
     finally:
-        # The sibling copy lives in the user's tree; never leave it behind.
+        # The sibling copy lives in the user's tree; never leave it behind — a
+        # stray *.spec.ts next to the original gets collected as a second spec.
         if working_spec.parent == spec.parent and working_spec.exists():
             working_spec.unlink()
+
+
+def _pid_alive(pid: int) -> bool:
+    if pid == os.getpid():
+        return True
+    if os.name == "nt":
+        return True  # os.kill(pid, 0) is not a liveness probe on Windows; never sweep there
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # exists, owned by someone else
+    return True
+
+
+def _sweep_stale_working_copies(spec: Path) -> None:
+    """Remove `_9lives_heal_<pid>_*` siblings left by killed heals.
+
+    A SIGKILL (exit 137, OOM, `kill -9`) never reaches `finally`, so the working
+    copy survives in the user's test directory. Only copies whose owning process
+    is gone are removed — concurrent heals keep their own copies.
+    """
+    for candidate in spec.parent.iterdir():
+        name = candidate.name
+        if not (name.startswith(WORKING_COPY_PREFIX) and candidate.is_file()):
+            continue
+        pid_text, separator, _ = name[len(WORKING_COPY_PREFIX) :].partition("_")
+        if not separator:
+            continue
+        if not pid_text.isdigit() or _pid_alive(int(pid_text)):
+            continue
+        try:
+            candidate.unlink()
+            print(f"{PAW} removed stale working copy from an earlier interrupted heal: {name}")
+        except OSError:
+            logger.debug("could not remove stale working copy %s", candidate, exc_info=True)
+
+
+@contextlib.contextmanager
+def _cleanup_on_termination() -> Iterator[None]:
+    """Make SIGTERM/SIGHUP unwind through `finally` instead of killing the process outright.
+
+    SIGINT already arrives as KeyboardInterrupt. SIGKILL cannot be caught — the
+    stale-copy sweep at the start of the next heal covers that case.
+    """
+    if threading.current_thread() is not threading.main_thread():
+        yield  # signal.signal() only works on the main thread
+        return
+
+    def _exit(signum, frame):
+        raise SystemExit(128 + signum)
+
+    previous = {}
+    for name in ("SIGTERM", "SIGHUP"):
+        signum = getattr(signal, name, None)
+        if signum is None:
+            continue
+        try:
+            previous[signum] = signal.signal(signum, _exit)
+        except (ValueError, OSError):
+            continue
+    try:
+        yield
+    finally:
+        for signum, handler in previous.items():
+            signal.signal(signum, handler if handler is not None else signal.SIG_DFL)
 
 
 def _record_history(

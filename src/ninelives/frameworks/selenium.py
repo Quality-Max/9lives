@@ -12,7 +12,7 @@ import re
 import shutil
 from pathlib import Path
 
-from ..runner.execute import RUN_TIMEOUT_SECONDS, RunnerError, RunResult, TestError, _run
+from ..runner.execute import RunnerError, RunResult, TestError, run_test_command
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class SeleniumAdapter:
 
         cmd = [pytest_bin, str(spec), "--tb=long", "-q", "--color=no", "-p", "no:cacheprovider"]
         logger.info("Running: %s", " ".join(cmd))
-        proc = _run(cmd, spec.parent, RUN_TIMEOUT_SECONDS)
+        proc = run_test_command(cmd, spec.parent)
 
         errors = parse_pytest_output(proc.stdout)
         passed = proc.returncode == 0

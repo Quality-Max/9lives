@@ -5,6 +5,7 @@ The execution kernel: npm install (scaffolded projects only) →
 JSON reporter → structured RunResult.
 """
 
+import contextlib
 import json
 import logging
 import os
@@ -12,6 +13,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -19,8 +21,11 @@ from .project import find_enclosing_package_json, find_user_project, scaffold_pr
 
 logger = logging.getLogger(__name__)
 
-RUN_TIMEOUT_SECONDS = 300
+RUN_TIMEOUT_SECONDS = 300  # default budget for one spec run; see run_timeout()
 INSTALL_TIMEOUT_SECONDS = 600
+RUN_TIMEOUT_ENV = "NINELIVES_RUN_TIMEOUT"
+
+_run_timeout_override: int | None = None  # set by --run-timeout / override_run_timeout()
 
 _ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -57,6 +62,56 @@ class RunnerError(RuntimeError):
     """Environment problem that prevents running at all (no node, npm failed…)."""
 
 
+class RunTimeoutError(RunnerError):
+    """A subprocess exceeded its time budget (the spec run, npm install, browser install)."""
+
+
+def _positive_seconds(raw, source: str) -> int:
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        raise RunnerError(f"{source} must be a whole number of seconds, got {raw!r}") from None
+    if value <= 0:
+        raise RunnerError(f"{source} must be a positive number of seconds, got {value}")
+    return value
+
+
+def run_timeout() -> int:
+    """Seconds one spec run may take: --run-timeout, else NINELIVES_RUN_TIMEOUT, else 300.
+
+    Mature suites routinely exceed five minutes; a fixed ceiling made them
+    unrunnable (and unhealable), so the budget is user-tunable.
+    """
+    if _run_timeout_override is not None:
+        return _run_timeout_override
+    raw = os.environ.get(RUN_TIMEOUT_ENV)
+    if raw is None or raw.strip() == "":
+        return RUN_TIMEOUT_SECONDS
+    return _positive_seconds(raw.strip(), RUN_TIMEOUT_ENV)
+
+
+def set_run_timeout(seconds: int | None) -> None:
+    """Process-wide override for the spec run timeout (backs the --run-timeout flag)."""
+    global _run_timeout_override
+    _run_timeout_override = None if seconds is None else _positive_seconds(seconds, "--run-timeout")
+
+
+@contextlib.contextmanager
+def override_run_timeout(seconds: int | None) -> Iterator[None]:
+    """Scoped override — used by the MCP server so one tool call's budget
+    doesn't leak into the next. None leaves the current setting untouched."""
+    global _run_timeout_override
+    if seconds is None:
+        yield
+        return
+    previous = _run_timeout_override
+    set_run_timeout(seconds)
+    try:
+        yield
+    finally:
+        _run_timeout_override = previous
+
+
 def _require(binary: str) -> str:
     path = shutil.which(binary)
     if not path:
@@ -64,9 +119,39 @@ def _require(binary: str) -> str:
     return path
 
 
-def _run(cmd: list[str], cwd: Path, timeout: int, env: dict | None = None) -> subprocess.CompletedProcess:
+def _describe(cmd: list[str]) -> str:
+    return " ".join([Path(cmd[0]).name, *cmd[1:4]])
+
+
+def _run(
+    cmd: list[str], cwd: Path, timeout: int, env: dict | None = None, *, timeout_message: str | None = None
+) -> subprocess.CompletedProcess:
     merged_env = {**os.environ, **(env or {})}
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, env=merged_env, check=False)
+    try:
+        return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, env=merged_env, check=False)
+    except subprocess.TimeoutExpired as e:
+        # subprocess.run has already killed the child; turn the raw traceback
+        # into a handled error that says what to do about it.
+        raise RunTimeoutError(timeout_message or f"`{_describe(cmd)}` timed out after {timeout}s") from e
+
+
+def run_test_command(cmd: list[str], cwd: Path, env: dict | None = None) -> subprocess.CompletedProcess:
+    """Run a framework's test command under the user-tunable spec timeout.
+
+    Every adapter routes its `npx playwright test` / `npx cypress run` /
+    `pytest` call through here so the budget and the error text are the same
+    regardless of framework.
+    """
+    timeout = run_timeout()
+    return _run(
+        cmd,
+        cwd,
+        timeout,
+        env=env,
+        timeout_message=(
+            f"spec exceeded the {timeout}s run timeout — raise it with --run-timeout <seconds> or {RUN_TIMEOUT_ENV}=<seconds>"
+        ),
+    )
 
 
 def ensure_browsers(project_dir: Path) -> None:
@@ -135,7 +220,7 @@ def run_spec(spec_path: Path, workdir: Path | None = None) -> RunResult:
     env = {"PLAYWRIGHT_JSON_OUTPUT_NAME": str(results_path), "CI": "1"}
     cmd = [npx, "playwright", "test", spec_arg, "--reporter=json"]
     logger.info("Running: %s (cwd=%s)", " ".join(cmd), project_dir)
-    proc = _run(cmd, project_dir, RUN_TIMEOUT_SECONDS, env=env)
+    proc = run_test_command(cmd, project_dir, env=env)
 
     errors, duration_ms = _parse_report(results_path, proc.stdout)
     passed = proc.returncode == 0

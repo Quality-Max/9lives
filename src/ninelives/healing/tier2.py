@@ -5,11 +5,16 @@ import re
 from typing import ClassVar
 
 from ..llm.client import LLMClient, LLMError
+from .patch import comments_changed
 from .strategy import HealingResult, HealingTier, TestFailure
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = "You are an expert test automation engineer. Analyze test failures and suggest minimal fixes."
+SYSTEM_PROMPT = (
+    "You are an expert test automation engineer. Analyze test failures and suggest minimal fixes. "
+    "Change only what the failure requires; never edit comments, imports, or unrelated tests, and never "
+    "claim a change was tested or verified — verification happens by re-running the test, not by you."
+)
 
 
 class Tier2AISuggest:
@@ -37,6 +42,20 @@ class Tier2AISuggest:
 
         healed_code = self._parse_suggestion(suggestion, failure.test_code)
         changes = self._extract_changes(suggestion)
+
+        if comments_changed(failure.test_code, healed_code):
+            # Enforce the prompt's comment boundary. A legitimate code fix must
+            # not smuggle fabricated "verified" prose into the user's file.
+            return HealingResult(
+                tier=HealingTier.TIER2_AI_SUGGEST,
+                success=False,
+                requires_approval=True,
+                metadata={
+                    "reason": "AI suggestion edited comments or surrounding whitespace",
+                    "ai_reasoning": suggestion,
+                    "original_error": failure.error_message,
+                },
+            )
 
         return HealingResult(
             tier=HealingTier.TIER2_AI_SUGGEST,
@@ -82,9 +101,11 @@ class Tier2AISuggest:
             [
                 "## Instructions",
                 "1. Analyze why the test is failing",
-                "2. Suggest a minimal fix",
-                "3. Provide the corrected code (the COMPLETE test file)",
-                "4. Explain the changes made",
+                "2. Suggest a minimal fix: change only the line(s) that cause THIS failure",
+                "3. Do not edit comments, imports, or other tests; do not reformat or add advice",
+                "4. Do not describe anything as tested or verified — 9lives re-runs the test to verify",
+                "5. Provide the corrected code (the COMPLETE test file)",
+                "6. Explain the changes made",
                 "",
                 "## Output Format",
                 "REASONING: <your analysis>",
@@ -111,13 +132,20 @@ class Tier2AISuggest:
             r"CODE:\s*```(?:javascript|typescript|python|js|ts|py)?\s*\n(.*?)```", suggestion, re.DOTALL | re.IGNORECASE
         )
         if code_match:
-            return code_match.group(1).strip()
+            return self._match_trailing_newline(code_match.group(1).strip(), original_code)
 
         code_block = re.search(r"```(?:javascript|typescript|python|js|ts|py)?\s*\n(.*?)```", suggestion, re.DOTALL)
         if code_block:
-            return code_block.group(1).strip()
+            return self._match_trailing_newline(code_block.group(1).strip(), original_code)
 
         return original_code
+
+    @staticmethod
+    def _match_trailing_newline(code: str, original_code: str) -> str:
+        """Keep the file's trailing-newline convention so the diff shows only the fix."""
+        if original_code.endswith("\n") and not code.endswith("\n"):
+            return code + "\n"
+        return code
 
     def _extract_changes(self, suggestion: str) -> list[str]:
         """Extract list of changes from AI suggestion."""
