@@ -1,5 +1,9 @@
 # 🐾 9lives
 
+[Self-healing guide](https://docs.qualitymax.io/self-healing/) · [Standalone tools](https://docs.qualitymax.io/free-and-open-source/)
+
+**Status: prototype.** This repository provides local test repair. Hosted QualityMax healing is a separate workflow. Review repair diffs and completed test results before accepting changes.
+
 **Your tests have nine lives.** Self-healing QA for the coding-agent era, by [QualityMax](https://qualitymax.io).
 
 ![9lives healing a broken Playwright selector — offline, in seconds](demo/heal.gif)
@@ -121,8 +125,8 @@ Runs on **your** runner, heals with **your** key, posts a 🐾 report comment on
 
 - **Your subscription:** an installed `claude` / `codex` / `opencode` CLI is auto-detected and used for Tier 2, so the subscription you already use for coding can heal tests too.
 - **Or your key:** `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`. Force a choice with `NINELIVES_PROVIDER` (`claude-code`, `codex`, `opencode`, `anthropic`, `openai`) and `NINELIVES_MODEL`.
-- **Your runner:** everything executes on your machine or your CI. Nothing leaves it, nothing phones home.
-- **No account.** Ever, for anything in this tool.
+- **Your runner:** tests execute on your machine or CI. Model-assisted healing sends the required test and page-snapshot inputs to your configured coding agent or provider.
+- **No QualityMax account required.** Model-assisted tiers use your provider or coding-agent account and may incur charges.
 
 ## Security & trust boundary
 
@@ -137,9 +141,8 @@ NINELIVES_PROVIDER=anthropic   # or openai
 ## Roadmap
 
 - `9l check` — map your git diff to affected user flows, run/generate targeted tests: *"did my agent break anything?"*
-- `9lives-action` — GitHub Action that posts the QA report on PRs, healed commits included
 - `9l gen <url>` — crawl a live app and generate a starter test suite
 
 ## Status
 
-**v0.1 prototype** — built by [QualityMax](https://qualitymax.io) for local, BYO self-healing Playwright workflows. MIT licensed.
+**Prototype** — built by [QualityMax](https://qualitymax.io) for local, BYO self-healing Playwright workflows. MIT licensed.
