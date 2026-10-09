@@ -90,6 +90,19 @@ Go v0.1.5 and earlier run `9l heal` through the separately installed Python pack
 - `9l heal <spec>` runs Go's verified selector healing: one offline Tier 1 attempt, then the provider named with `--provider` or `NINELIVES_PROVIDER`, an installed `claude`/`codex`/`opencode` CLI, or a configured API key. With no provider it is offline Tier 1 only. Each candidate is verified in an isolated copy before it is saved as `<spec>.healed` or, with approval or `--yes`, applied. Output is a JSON session result, not Python's report. `--run-timeout` accepts whole seconds as before. Python-only options such as `--framework` exit 2; use `9lives heal` for them and for Cypress or Selenium specs.
 - `9l mcp` is a native MCP stdio server with `run_test`, `heal_test` and `assess_test`. Start it in the project root and name the environment variables tests need: `claude mcp add 9lives -- 9l mcp --pass-env BASE_URL`. Paths outside the working directory are refused unless `NINELIVES_MCP_UNRESTRICTED=1`, as in Python. `heal_test` writes in place only with `apply: true`. See the [MCP server guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/mcp.md).
 
+Before switching an existing MCP host to Go, refresh its tool schemas with `tools/list` and update scripted callers and result parsing. The shared `run_test` and `heal_test` names do not preserve Python's argument or result contracts:
+
+| Python MCP contract | Go MCP migration |
+| --- | --- |
+| `framework` on `run_test` or `heal_test` | Remove it for Playwright; Go rejects the field. Retain Python for Cypress/Selenium |
+| `heal_test.max_iterations` (1–9, default 3) | Replace it with `max_proposals` (1–5, default 1). This limits Tier 2 proposals after the single offline Tier 1 attempt; recheck the intended repair budget |
+| `heal_test` result `status` | Read `state`; `run_test` still uses `status`, including `incomplete`, which is never a pass |
+| Healing `status: "healed"` | Go returns `state: "verified"` for a saved repair or `state: "applied"` for an in-place repair |
+| Healing `status: "needs-human"` | Handle `state: "needs_human"` as requiring human review |
+| Healing result `healed_copy` | Read `savedPath` when a verified repair is saved; check `applied` for an in-place repair |
+
+Calls containing `framework` or `max_iterations` return `isError: true` before test execution. Handle Go's remaining healing states (`passed`, `unverified`, `provider_error`, `canceled`, and `concurrent_edit` when the source changed before application) explicitly, and use the pinned runner's result schema for diagnostics instead of Python's `detail` field. Validate the migrated integration against a passing test, a known failure, and saved versus applied repairs before relying on it.
+
 To keep Python's MCP server, configure hosts with `9lives mcp`, or an absolute Python interpreter and `-m ninelives.cli mcp`, so a Go installation does not change the server selected by PATH. A host configured with `9l mcp` stops connecting when Go v0.1.5 or earlier is first on PATH. Keep stdout reserved for MCP protocol messages.
 
 The Action and hooks in this repository select `ninelives.cli` through their Python interpreter. Existing published tags stay on their current implementation; these changes take effect only when users select a release containing them. New Go CI integrations must explicitly pin the runner release, preserve application setup, map receipts and exit codes, and verify both a passing test and a known failure. Do not retarget the `v1` Action tag to Go.
