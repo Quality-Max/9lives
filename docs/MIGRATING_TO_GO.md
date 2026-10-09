@@ -77,7 +77,7 @@ Start with a representative subset. Compare test discovery, passing and failing 
 | Playwright execution | Prefer Go after validating the project workflow |
 | `9lives heal` | Supported Python path; Go `9l heal` delegates to Python |
 | Native selector repair | Go `tier1` produces offline, unverified proposals; experimental `heal-native` verifies supported selector-only changes in isolation |
-| MCP `heal_test` / `run_test` | Retain Python; Go native healing has no MCP entry point |
+| MCP `heal_test` / `run_test` | Retain Python's server; Go `9l mcp` delegates to it from the release after v0.1.5. Go native healing has no MCP entry point |
 | Watch, brittle-selector history/report, doctor | Retain Python until replacements or discontinuation decisions are documented |
 | Cypress/Selenium execution | Retain Python; Go adapters are deferred |
 | Standalone-spec scaffolding | Retain Python or set up a Playwright project explicitly |
@@ -85,13 +85,13 @@ Start with a representative subset. Compare test discovery, passing and failing 
 
 Native healing is deliberately narrower than historical Python repair behavior. It refuses assertion edits and unrelated source changes. Review the [Tier 1](https://github.com/Quality-Max/9lives-runner/blob/main/docs/native-tier1.md) and [native healing](https://github.com/Quality-Max/9lives-runner/blob/main/docs/native-tier2.md) contracts before adopting it. Do not equate an offline proposal with a verified repair.
 
-When invoking the Python bridge from Go, explicitly select its installed interpreter when needed:
+Go's `9l heal`, and from the release after v0.1.5 `9l mcp`, run the separately installed Python package. Neither works after Python is uninstalled. Those releases use Python's `9lives` entry point when it is on PATH, which covers `uv tool` and `pipx` installs, and otherwise fall back to `python3 -m ninelives.cli`. Without the package they exit 2 with an install hint. v0.1.5 and earlier always use `python3 -m ninelives.cli heal` and have no `mcp` command. To select an interpreter explicitly:
 
 ```sh
 NINELIVES_PYTHON=/path/to/python 9l heal tests/login.spec.ts
 ```
 
-Configure Python MCP hosts with `9lives`, or an absolute Python interpreter and `-m ninelives.cli mcp`, so a Go installation does not change the server selected by PATH. Keep stdout reserved for MCP protocol messages.
+Configure Python MCP hosts with `9lives mcp`, or an absolute Python interpreter and `-m ninelives.cli mcp`, so a Go installation does not change the server selected by PATH. A host configured with `9l mcp` stops connecting when the Go runner v0.1.5 or earlier is first on PATH. Later Go releases forward `9l mcp` to the Python server, but `9lives mcp` remains the explicit choice. Keep stdout reserved for MCP protocol messages.
 
 The Action and hooks in this repository select `ninelives.cli` through their Python interpreter. Existing published tags stay on their current implementation; these changes take effect only when users select a release containing them. New Go CI integrations must explicitly pin the runner release, preserve application setup, map receipts and exit codes, and verify both a passing test and a known failure. Do not retarget the `v1` Action tag to Go.
 
