@@ -47,7 +47,8 @@ jobs:
         run: |
           uv tool install .
           9l --version
-          9l doctor || true   # no LLM key in CI — doctor still must not crash
+          9lives --version
+          9lives doctor || true   # no LLM key in CI — doctor still must not crash
       - name: Tier 1 offline heal e2e
         run: |
           mkdir -p /tmp/e2e && cd /tmp/e2e
@@ -64,5 +65,5 @@ jobs:
             await expect(page.locator('#b')).toHaveText('Welcome!');
           });
           EOF
-          9l heal --yes login.spec.js
+          9lives heal --yes login.spec.js
           grep -q "text='Sign in'" login.spec.js

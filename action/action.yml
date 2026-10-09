@@ -75,9 +75,9 @@ runs:
           exit 1
         fi
         if [ "$NINELIVES_MODE" = "heal" ]; then
-          9l heal --yes "${specs[@]}"
+          python3 -m ninelives.cli heal --yes "${specs[@]}"
         else
-          9l run "${specs[@]}"
+          python3 -m ninelives.cli run "${specs[@]}"
         fi
 
     - name: Post PR comment

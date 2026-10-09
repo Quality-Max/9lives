@@ -1,24 +1,28 @@
 import Image from 'next/image';
 import { CopyButton } from './copy-button';
 
-const installCommand = 'curl -sL 9lives.run | sh';
-const healCommand = '9l heal login.spec.ts';
+const installCommand = 'curl -fsSL https://9lives.run/install.sh | sh';
+const pathCommand = 'export PATH="$HOME/.local/share/9lives-runner/bin:$PATH"';
+const runCommand = '9l run tests/ --timeout 5m --format json';
+const pythonCommand = 'uv tool install 9lives';
+const runnerSite = 'https://quality-max.github.io/9lives-runner/';
+const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIGRATING_TO_GO.md';
 
 const healingSteps = [
   {
     number: '01',
-    title: 'Run & classify',
-    copy: '9Lives runs the failing spec and separates selector drift from real behavior changes.',
+    title: 'Plan your tests',
+    copy: 'Inspect discovered specs before execution. Keep your existing Playwright configuration and assertions.',
   },
   {
     number: '02',
-    title: 'Heal the drift',
-    copy: 'Stable page evidence finds the element again. Structural changes can use your existing coding-agent CLI.',
+    title: 'Run with bounds',
+    copy: 'Go owns concurrency, deadlines, cancellation, and a terminal outcome for every required test.',
   },
   {
     number: '03',
-    title: 'Verify & review',
-    copy: 'The spec runs again, then you get a unified diff before anything is applied.',
+    title: 'Inspect the evidence',
+    copy: 'Validated receipts distinguish completed tests from missing evidence, skips, and interrupted runs.',
   },
 ];
 
@@ -64,8 +68,9 @@ export default function Home() {
         </a>
         <nav aria-label="Primary navigation">
           <a href="#how-it-works">How it works</a>
+          <a href={runnerSite}>Documentation</a>
           <a href="#ecosystem">Ecosystem</a>
-          <a className="nav-github" href="https://github.com/Quality-Max/9lives">
+          <a className="nav-github" href="https://github.com/Quality-Max/9lives-runner">
             GitHub <span aria-hidden="true">↗</span>
           </a>
         </nav>
@@ -74,27 +79,39 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-glow" aria-hidden="true" />
         <p className="product-mark"><span aria-hidden="true">🐾</span> 9LIVES</p>
-        <p className="eyebrow"><span /> Local-first self-healing QA <span /></p>
+        <p className="eyebrow"><span /> Go runner · Playwright · Local execution <span /></p>
         <h1 id="hero-title">Your tests have<br /><em>nine lives.</em></h1>
         <p className="hero-copy">
-          A Playwright selector drifted after your coding agent shipped a change? Run the spec,
-          heal the locator, verify it green, and review the diff—without hiding a real bug.
+          Ordinary Playwright tests. Bounded AI help. Evidence for every attempt.
+          Run locally with the Go runner, keep your assertions, and inspect the result.
         </p>
 
         <div className="command-stack" aria-label="Quick start commands">
           <div className="command-card primary-command">
-            <span className="command-label">Install free</span>
+            <span className="command-label">Install the Go runner</span>
             <code>{installCommand}</code>
             <CopyButton value={installCommand} />
           </div>
           <div className="command-card">
-            <span className="command-label">Resurrect a spec</span>
-            <code>{healCommand}</code>
-            <CopyButton value={healCommand} />
+            <span className="command-label">Add the Go binary to PATH</span>
+            <code>{pathCommand}</code>
+            <CopyButton value={pathCommand} />
+          </div>
+          <div className="command-card">
+            <span className="command-label">Run your existing Playwright suite</span>
+            <code>{runCommand}</code>
+            <CopyButton value={runCommand} />
           </div>
         </div>
 
-        <p className="trust-line">MIT licensed <span>•</span> No account <span>•</span> No telemetry <span>•</span> Tier 1 works offline</p>
+        <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> macOS & Linux <span>•</span> amd64 & arm64</p>
+        <p className="hero-note">
+          The installer downloads a checksum-verified binary; Go and Python are not required.
+          Your project needs its own Playwright dependencies and browsers.{' '}
+          <a href={runnerSite}>Explore the runner</a> ·{' '}
+          <a href="https://github.com/Quality-Max/9lives-runner/releases">Download a release</a> ·{' '}
+          <a href={migrationGuide}>Migrate from Python</a>
+        </p>
         <div className="featured-links">
           <a
             className="featured-link"
@@ -110,16 +127,16 @@ export default function Home() {
             target="_blank"
             rel="noreferrer"
           >
-            Listed on <strong>awesome-python-testing</strong> <span aria-hidden="true">↗</span>
+            Python package listed on <strong>awesome-python-testing</strong> <span aria-hidden="true">↗</span>
           </a>
         </div>
       </section>
 
       <section className="section" id="how-it-works" aria-labelledby="how-heading">
         <div className="section-heading">
-          <p>THE HEAL LOOP</p>
-          <h2 id="how-heading">Fix drift. Keep the signal.</h2>
-          <span>9Lives changes locators when the page moved. It refuses to rewrite assertions just to force green.</span>
+          <p>THE EXECUTION LOOP</p>
+          <h2 id="how-heading">Keep your assertions. Get the evidence.</h2>
+          <span>Go runs your existing tests. Add SDK steps and bounded goals when you need them; explicit assertions remain the test oracle.</span>
         </div>
         <div className="step-grid">
           {healingSteps.map((step) => (
@@ -134,14 +151,37 @@ export default function Home() {
         <div className="safety-banner">
           <span className="safety-icon" aria-hidden="true">!</span>
           <div>
-            <strong>Assertions stay honest.</strong>
-            <p>A failing assertion may be a real regression. 9Lives marks it <code>needs-human</code> instead of masking it.</p>
+            <strong>A pass has a precise meaning.</strong>
+            <p>A passing receipt means assertions passed and execution evidence was validated. It does not prove full requirement coverage. Native selector healing is experimental and preserves assertions.</p>
           </div>
         </div>
       </section>
 
       <section className="framework-strip" aria-label="Supported test frameworks">
-        <span>PLAYWRIGHT</span><i>+</i><span>CYPRESS</span><i>+</i><span>SELENIUM</span>
+        <span>GO RUNNER</span><i>+</i><span>PLAYWRIGHT</span><i>+</i><span>OPTIONAL SDK</span>
+      </section>
+
+      <section className="section" id="python" aria-labelledby="python-heading">
+        <div className="section-heading">
+          <p>EXISTING PYTHON WORKFLOWS</p>
+          <h2 id="python-heading">Python is in maintenance mode.</h2>
+          <span>Use Go for new Playwright projects. Python continues to receive security, correctness, and compatibility fixes; no removal date has been set.</span>
+        </div>
+        <p className="compatibility-copy">
+          Keep Python for MCP, watch and history reports, Cypress/Selenium, standalone-spec
+          scaffolding, and existing Action or pre-commit integrations. Go&apos;s <code>9l heal</code>{' '}
+          still delegates to Python; <code>heal-native</code> is an experimental, narrower alternative.
+        </p>
+        <div className="inline-command">
+          <code>{pythonCommand}</code>
+          <CopyButton value={pythonCommand} />
+        </div>
+        <p className="compatibility-copy">
+          Select Python explicitly with <code>9lives</code> or <code>python -m ninelives.cli</code>.
+          Both distributions provide <code>9l</code>, so check <code>9l --version</code> before migrating scripts.{' '}
+          <a href={migrationGuide}>Read the migration guide</a> ·{' '}
+          <a href="https://github.com/Quality-Max/9lives">Python source and compatibility docs</a>
+        </p>
       </section>
 
       <section className="section ecosystem-section" id="ecosystem" aria-labelledby="ecosystem-heading">
@@ -169,14 +209,14 @@ export default function Home() {
           <code>{installCommand}</code>
           <CopyButton value={installCommand} />
         </div>
-        <a href="https://github.com/Quality-Max/9lives">Read the source on GitHub <span aria-hidden="true">↗</span></a>
+        <a href={runnerSite}>See the Go runner in action <span aria-hidden="true">↗</span></a>
       </section>
 
       <footer>
         <a className="qualitymax-brand" href="https://qualitymax.io" aria-label="QualityMax home">
           <Image src="https://qualitymax.io/static/img/qualitymax-logo-white.png" alt="QualityMax" width={200} height={30} unoptimized />
         </a>
-        <p>Open self-healing QA for the coding-agent era.</p>
+        <p>Local Playwright execution with attributable evidence.</p>
         <span>© 2026 QualityMax</span>
       </footer>
     </main>
