@@ -11,7 +11,9 @@ def test_public_installer_matches_canonical_script():
 def test_landing_page_keeps_install_and_ecosystem_links():
     page = (WEBSITE / "app" / "page.tsx").read_text()
 
-    assert "curl -sL 9lives.run | sh" in page
+    assert "curl -fsSL https://9lives.run/install.sh | sh" in page
+    assert "https://quality-max.github.io/9lives-runner/" in page
+    assert "https://github.com/Quality-Max/9lives-runner" in page
     assert page.count('href="https://qualitymax.io"') == 2
     for destination in (
         "https://qmax.run",

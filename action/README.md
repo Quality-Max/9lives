@@ -1,6 +1,8 @@
 # 🐾 9lives GitHub Action
 
-Self-healing QA on **your** runner, with **your** key — no account, no cloud tether, nothing leaves your CI. The report lands on the PR; healed tests can be committed straight back to the branch.
+This Action remains on the maintenance-only Python implementation. New Playwright execution integrations should use the [Go runner](https://quality-max.github.io/9lives-runner/); follow the [migration guide](../docs/MIGRATING_TO_GO.md) before changing an existing workflow. The `v1` Action is not retargeted to Go.
+
+Self-healing QA on **your** runner, with **your** key and no QualityMax account. Model-assisted healing sends the required inputs to your configured provider. The report lands on the PR; healed tests can be committed straight back to the branch.
 
 ```yaml
 name: 9lives
@@ -25,6 +27,8 @@ jobs:
 ```
 
 ## Inputs
+
+The Action invokes its installed Python package directly, so a Go `9l` earlier on PATH does not change its engine. Published tags keep their existing behavior until you select a release containing this invocation change.
 
 | input | default | what it does |
 |---|---|---|
