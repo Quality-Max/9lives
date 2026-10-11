@@ -1,55 +1,47 @@
-# 9lives meme assets
+# 9lives launch meme assets
 
-Created with the built-in image generation tool. These are illustrated developer jokes, not product screenshots. The 20-second claim is scoped to one Python 9l 0.3.0 repair. Character-based Batman/Catwoman requests were rejected by the image tool; the delivered fourth image uses original feline superheroes.
+Created with the built-in image generation tool, using the approved Product Hunt thumbnail as the brand reference: fluffy black Qmax kitten, violet collar, cyan terminal tag, ivory background, and bold indigo typography. These are illustrated developer jokes, not product screenshots or benchmarks.
 
-Production assets: 1024 × 1024 WebP, quality 84, encoded from generated PNG originals. Images load lazily on 9lives.run with explicit dimensions and descriptive alt text. The first email uses a separate 640 × 640 PNG for email-client compatibility.
+Production assets are 1024 × 1024 WebP at quality 84. The gallery uses explicit dimensions, lazy loading, descriptive alt text, and links to the full images. The comparison meme spans both desktop columns; mobile uses one column.
 
-Meme images are hosted only on 9lives.run. QualityMax's homepage has no meme gallery; the GitHub README links to the gallery without embedding images.
+Hosted on **9lives.run only**. QualityMax's homepage has no meme gallery. The GitHub README links to the gallery.
 
-| Asset | 9lives path |
+| Asset | Production path |
 | --- | --- |
-| button-rename | `website/public/memes/button-rename.webp` |
-| harry-potter | `website/public/memes/harry-potter.webp` |
-| lotr | `website/public/memes/lotr.webp` |
-| batman-catwoman | `website/public/memes/batman-catwoman.webp` |
+| button-rename | `website/public/memes/button-rename-launch.webp` |
+| harry-potter | `website/public/memes/harry-potter-launch.webp` |
+| lotr | `website/public/memes/lotr-launch.webp` |
+| batman-catwoman | `website/public/memes/batman-catwoman-launch.webp` |
+| distracted-team | `website/public/memes/distracted-team-launch.webp` |
 
-Social JPEG exports: `docs/marketing/assets/9lives-{harry-potter,lotr,batman-catwoman}-meme.jpg` in the QualityMax repository, 1024 × 1024 at quality 85. The original cat meme is the existing PNG in that directory.
+The comparison uses the official e2e logo from [TesterArmy's repository](https://github.com/tester-army/e2e/blob/main/docs/logo-black.png), retrieved on 2026-10-11. It identifies e2e by TesterArmy. The middle character is a Playwright developer in glasses and a hoodie carrying a laptop. The composition is an original cat parody of the distracted-boyfriend meme; it does not reuse the photograph.
 
-Email image: `website/public/memes/button-rename-email.png` in the 9lives repository, served at `https://9lives.run/memes/button-rename-email.png`.
+The older non-launch assets remain hosted to preserve existing social and email URLs. The email PNG is unchanged.
 
-## Prompts
+## Prompt set
+
+Common style: match the supplied approved launch thumbnail's black Qmax kitten, violet collar, cyan terminal tag, ivory background, indigo typography, and generous margins. Square raster, expressive cats, text readable on mobile. Preserve the mascot identity. Laptop screens show only FAIL or PASS; no invented metrics or product UI.
 
 ### button-rename
 
-```text
-Use case: ads-marketing
-Asset type: original Twitter/X developer meme, square image, readable on a phone.
-Primary request: A funny, instantly legible two-panel orange-cat meme about a Playwright test breaking after a button rename and 9lives repairing that specific test offline in 20 seconds. It should feel like a developer's joke shared with friends, not a corporate ad.
-Composition: Square, cream headline band across the top, two equal side-by-side illustrated panels underneath, narrow cream caption band at bottom. Thick black hand-drawn outlines, expressive orange cat in both panels, simple desk and laptop. Left panel: same cat dramatically collapsed backwards off its chair, paws up, wide shocked eyes, exaggerated panic, laptop screen red with "FAIL". Right panel: the cat comfortably upright, smug calm expression, holding a coffee, laptop screen green with "PASS". Keep backgrounds simple. Make the cat expressions and the absurd emotional contrast the focus.
-Text (verbatim): Top headline "YOU RENAMED ONE BUTTON."
-Left panel caption "MY PLAYWRIGHT TEST"
-Right panel caption "9LIVES, 20s LATER"
-Left laptop screen "FAIL"
-Right laptop screen "PASS"
-Bottom caption "Offline repair. Spec re-run. Green again."
-Typography: Large bold black meme captions, generous margins. All wording exact and readable at mobile size. No other text.
-Constraints: Original cartoon characters; no existing meme artwork, no invented product UI or screenshot. The image illustrates one measured repair case, not a guarantee that all tests or a full suite are repaired in 20 seconds. No competitor logos, watermarks, or extra branding. Opaque background.
-```
+Two-panel split. Headline: "ONE BUTTON RENAME." Left: black kitten dramatically slumped over a laptop showing red FAIL, caption "MY AFTERNOON". Right: same kitten calmly sitting beside laptop with green PASS, caption "AFTER THE RE-RUN". Bottom: "Repair the locator. Keep the assertion." Footer "9lives.run".
 
 ### harry-potter
 
-```text
-Design a square funny developer meme as an original illustrated magical-school poster using objects only, no human characters or likenesses. Two panels, dark navy and gold palette, crisp comic drawing, very large cream text. Headline: YOU'RE A TESTER, HARRY. Left panel a broken wand, wizard glasses, red laptop FAIL, spellbook, label: LOCATORUS BROKENUS. Right panel a repaired wand, green check laptop, cosy ginger cat sleeping on spellbook, label: RERUNUS VERIFIEDUS. Bottom: 9lives. Less panic. More proof. Footer: 9lives.run · QualityMax. A playful spellcasting parody about renamed buttons breaking Playwright tests. Exact legible typography, all within frame.
-```
+Magical-school cat parody. Headline "YOU'RE A TESTER, HARRY." Two panels. Left: reference black kitten in round glasses with small wizard scarf, startled by a broken wooden wand and red FAIL laptop. Label "LOCATORUS BROKENUS". Right: same black kitten with whimsical violet wizard hat and wand, calm beside green PASS laptop. Label "RERUNUS VERIFIEDUS". Bottom "Even magic needs a re-run." Footer "9lives.run". No human likenesses.
 
 ### lotr
 
-```text
-Create a square 1024x1024 original funny editorial comic meme for 9lives test automation. Lord of the Rings theme, recognisable Boromir at Council of Elrond making famous pinched fingers gesture, dramatic elven arches and distant mountains. Two panels expressive hand-painted comic with crisp outlines, midnight navy background, warm amber/copper/green highlights, huge legible cream uppercase typography. Top headline EXACT: "ONE DOES NOT SIMPLY". Left panel Boromir serious next to red failing test laptop, label EXACT: "RENAME A BUTTON". Right panel Gandalf with staff, calm and amused next to green passing test laptop, label EXACT: "AND EXPECT GREEN TESTS". Bottom line EXACT: "9lives. Repair. Re-run. Review." Small footer EXACT: "9lives.run · QualityMax". Funny developer parody illustration, not a real screenshot. No other lettering, no official logos. Keep all text comfortably in frame and readable on mobile.
-```
+Epic fantasy cat parody. Headline "ONE DOES NOT SIMPLY". Central black kitten wearing a tiny grey wizard cloak, looking gravely at a red FAIL laptop, one paw raised in an incredulous gesture. Soft pale mountain silhouette behind. Second large caption beneath "RENAME A BUTTON." Small lower vignette same kitten calm at green PASS laptop. Bottom "Repair. Re-run. Review." Footer "9lives.run". Keep reference kitten face clearly visible.
 
 ### batman-catwoman
 
-```text
-Create an original square two-panel comic meme about software testing with two cartoon cats, no human characters. Dark navy, purple and gold, chunky bold readable cream typography. Title: THE BUTTON MOVED. Left panel: a grumpy grey cat dressed in a homemade bat-eared cape, staring at red FAIL on a laptop at midnight, coffee cups on desk. Panel caption: ANOTHER LONG NIGHT. Right panel: a confident ginger cat in a sleek purple superhero mask, green PASS on laptop. Caption: NINE LIVES. Bottom headline: KEEP THE ASSERTION. VERIFY THE FIX. Small footer: 9lives.run · QualityMax. Playful rooftop silhouette background, distinctive original illustrated feline superheroes, expressive faces, clean layout, high-quality hilarious developer meme.
-```
+Original feline superhero parody. Headline "THE BUTTON MOVED." Two panels. Left: fluffy black kitten wearing homemade bat-eared dark cape, exhausted at red FAIL laptop, caption "ANOTHER LONG NIGHT". Right: original black kitten with violet collar and cyan tag, tiny violet eye mask and flowing violet cape, confident beside green PASS laptop, caption "NINE LIVES". Bottom "Keep the assertion. Verify the fix." Footer "9lives.run". Original cats only, no official superhero symbols or human likenesses.
+
+### distracted-team
+
+Use case: compositing.
+Edit target: image 1, the square distracted-boyfriend cat meme. Supporting insert: image 2 is the authentic official e2e logo.
+Make the middle grey cat visibly a software developer: add neat thin dark glasses, a charcoal hoodie, and a slim closed laptop tucked under one front paw; preserve its turning pose and gaze toward the black 9lives kitten. Change the middle label from "Playwright team" to "Playwright developer" on two lines.
+Use the official e2e logo from image 2 above the ginger cat at right, faithfully preserving its "/ e2e" shape, dark color, and proportions. Under the logo put "by TesterArmy" as one or two lines of large readable indigo text. Remove the previous "e2e by TesterArmy" text so there is no duplicate e2e.
+Keep the left Qmax black kitten, violet collar, cyan terminal tag, fur, pose, face, label "9lives" unchanged. Keep the ivory street scene, square composition, heading "WHEN YOU ALREADY HAVE PLAYWRIGHT TESTS", bottom "Keep the tests. Repair the locator." and "9lives.run" unchanged. Match the original Qmax launch style. Text must be readable at small sizes; no extra words, metrics, logos or watermark.

@@ -10,27 +10,33 @@ const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIG
 
 const memes = [
   {
-    file: 'button-rename',
-    title: 'One button. A whole afternoon.',
-    alt: 'You renamed one button. A panicked cat watches a failing Playwright test; a calm cat sees 9lives, 20s later. Offline repair. Spec re-run. Green again.',
-    copy: 'The 20-second comeback is one measured Python 9l 0.3.0 repair, verified by re-running its spec.',
+    file: 'distracted-team-launch',
+    title: 'When you already have Playwright tests.',
+    alt: 'Distracted-boyfriend cat parody: a grey developer cat in glasses and a hoodie, carrying a laptop and labeled Playwright developer, turns toward the black Qmax kitten labeled 9lives, while a ginger cat with the official e2e logo and by TesterArmy label looks offended. Keep the tests. Repair the locator.',
+    copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
   },
   {
-    file: 'harry-potter',
+    file: 'button-rename-launch',
+    title: 'One button. A whole afternoon.',
+    alt: 'One button rename. The black Qmax kitten slumps over a failing laptop labeled My afternoon, then sits calmly beside a passing laptop labeled After the re-run. Repair the locator. Keep the assertion.',
+    copy: 'A locator repair still has to pass the original assertions.',
+  },
+  {
+    file: 'harry-potter-launch',
     title: 'Less panic. More proof.',
-    alt: 'Magical-school parody: You\'re a tester, Harry. Broken wand and glasses beside a failing laptop, then a ginger cat beside a passing laptop. Locatorus Brokenus becomes Rerunus Verifiedus. Less panic. More proof.',
+    alt: 'Magical-school cat parody: You\'re a tester, Harry. The black Qmax kitten in wizard glasses faces a failing laptop, then a passing one. Locatorus Brokenus becomes Rerunus Verifiedus. Even magic needs a re-run.',
     copy: 'Even a little UI magic deserves a real test result.',
   },
   {
-    file: 'lotr',
+    file: 'lotr-launch',
     title: 'A tiny change. An epic detour.',
-    alt: 'Lord of the Rings parody: One does not simply rename a button and expect green tests. Boromir faces a failing test; Gandalf inspects a passing result. 9lives. Repair. Re-run. Review.',
+    alt: 'Epic fantasy cat parody: One does not simply rename a button. The black Qmax kitten wears a grey wizard cloak beside a failing laptop, then reviews a passing result. Repair. Re-run. Review.',
     copy: 'The journey ends with evidence, not a hopeful green badge.',
   },
   {
-    file: 'batman-catwoman',
+    file: 'batman-catwoman-launch',
     title: 'Your tests deserve nine lives.',
-    alt: 'Original bat-and-cat superhero comic: The button moved. A grumpy grey cat in a bat-eared cape sees FAIL; a confident ginger cat in a purple mask sees PASS. Another long night. Nine lives. Keep the assertion. Verify the fix.',
+    alt: 'Original feline superhero parody: The button moved. A black kitten in a bat-eared cape sees FAIL; the Qmax kitten in a violet mask sees PASS. Another long night. Nine lives. Keep the assertion. Verify the fix.',
     copy: 'Keep the assertion. Make the fix earn its green.',
   },
 ];
@@ -115,7 +121,7 @@ export default function Home() {
 
         <div className="command-stack" aria-label="Quick start commands">
           <div className="command-card primary-command">
-            <span className="command-label">Install the Go runner</span>
+            <span className="command-label">Install on macOS or Linux</span>
             <code>{installCommand}</code>
             <CopyButton value={installCommand} />
           </div>
@@ -131,10 +137,13 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> macOS & Linux <span>•</span> amd64 & arm64</p>
+        <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> Linux · macOS · Windows <span>•</span> x64 & ARM64</p>
+        <p className="hero-note">One local Playwright workflow across your team’s machines. The Go runner v0.3.0 has native binaries for all three platforms.</p>
         <p className="hero-note">Built by QualityMax without any external funding. Our ambition: become a leading name in modern test automation, with practical AI and proof you can inspect.</p>
         <p className="hero-note">
-          The installer downloads a checksum-verified binary; Go and Python are not required.
+          The macOS/Linux shell installer downloads a checksum-verified binary; Go and Python are not required.
+          Windows users: follow the <a href="https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md#windows">ZIP install guide</a>.
+          Windows provider CLI shell integrations remain unqualified.
           Your project needs its own Playwright dependencies and browsers.{' '}
           <a href={runnerSite}>Explore the runner</a> ·{' '}
           <a href="https://github.com/Quality-Max/9lives-runner/releases">Download a release</a> ·{' '}
@@ -160,11 +169,35 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section feature-tour" id="features" aria-labelledby="feature-tour-heading">
+        <div className="section-heading">
+          <p>THE 9LIVES FEATURE LOOP</p>
+          <h2 id="feature-tour-heading">Create. Assess. Run. Heal. Challenge.</h2>
+          <span>From an agent draft to verified evidence. Actual QualityMax Demo Bank assessment and offline healing, replayed with its browser capture and results. Additional feature examples are labeled illustrations. One seeded locator case, not a comparative benchmark.</span>
+        </div>
+        <details className="workflow-animation" open>
+          <summary>Show or hide the 9lives feature animation</summary>
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcSet="/workflows/workflow-illustration.png" />
+            <Image src="/workflows/workflow-illustration.gif" alt="9lives workflow: a generated QualityMax Demo Bank empty-sign-in test, actual advisory assessment and offline locator verification, followed by illustrations of fault testing, finding confirmation and MCP tools." width={1280} height={720} unoptimized />
+          </picture>
+        </details>
+        <div className="feature-grid">
+          <article key="Agent-assisted test generation"><h3>Agent-assisted test generation</h3><p>Your coding agent drafts Playwright specs from reviewed requirements. Capture creation provenance before assessing and executing them.</p></article>
+          <article key="Test assessment"><h3>Test assessment</h3><p>9l assess flags fixed waits, skips, missing or unawaited assertions, and requirement-mapping gaps. Static findings are advisory.</p></article>
+          <article key="Local execution"><h3>Local execution</h3><p>Plan and run your existing Playwright suite with bounded concurrency, deadlines, cancellation, and attributable terminal receipts.</p></article>
+          <article key="Locator healing"><h3>Locator healing</h3><p>Experimental native healing preserves assertions and verifies supported locator-only candidates in isolation before review and acceptance.</p></article>
+          <article key="Fault testing & confirmation"><h3>Fault testing &amp; confirmation</h3><p>Experimental prove injects fetch/XHR faults; confirm compares a reproduction on unfixed and fixed Git revisions. Inspect what each result establishes.</p></article>
+          <article key="Agent tools & SDK"><h3>Agent tools &amp; SDK</h3><p>Native MCP exposes run, heal, assess, and confirm tools. The optional SDK adds named steps and bounded goals; goal completion remains unverified.</p></article>
+        </div>
+        <p className="hero-note"><a href="https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md">Read all features and limits →</a></p>
+      </section>
+
       <section className="section meme-section" id="memes" aria-labelledby="meme-heading">
         <div className="section-heading">
           <p>SMALL UI CHANGE. BIG TEST DRAMA.</p>
-          <h2 id="meme-heading">We only renamed a button.</h2>
-          <span>For everyone who has lost an afternoon to those six words. Send one to the teammate who knows the feeling.</span>
+          <h2 id="meme-heading">Nine lives. Same test drama.</h2>
+          <span>The launch kitten has been through it too. Open a meme and send it to the teammate who knows the feeling.</span>
         </div>
         <div className="meme-grid">
           {memes.map((meme) => (
@@ -176,7 +209,7 @@ export default function Home() {
             </figure>
           ))}
         </div>
-        <p className="meme-note">Illustrated developer jokes. The 20-second result belongs to the Python field trial, not a Go runner benchmark. <a href="https://qualitymax.io/blog/9lives-playwright-field-report">Read the field report →</a></p>
+        <p className="meme-note">Illustrated developer jokes. Native healing is experimental; these images are not benchmarks. <a href="https://qualitymax.io/blog/9lives-playwright-field-report">Read the field report →</a></p>
       </section>
 
       <section className="section" id="how-it-works" aria-labelledby="how-heading">
@@ -215,9 +248,11 @@ export default function Home() {
           <span>Use Go for new Playwright projects. Python continues to receive security, correctness, and compatibility fixes; no removal date has been set.</span>
         </div>
         <p className="compatibility-copy">
-          Keep Python for MCP, watch and history reports, Cypress/Selenium, standalone-spec
-          scaffolding, and existing Action or pre-commit integrations. Go&apos;s <code>9l heal</code>{' '}
-          still delegates to Python; <code>heal-native</code> is an experimental, narrower alternative.
+          Keep Python for its existing MCP contracts, watch and history reports, Cypress/Selenium,
+          standalone-spec scaffolding, and existing Action or pre-commit integrations.
+          Go v0.3 has native <code>9l heal</code> and <code>9l mcp</code>; native healing is experimental.
+          The website shell installer is pinned to v0.1.1, whose heal command uses Python;
+          download v0.3 for the feature tour above.
         </p>
         <div className="inline-command">
           <code>{pythonCommand}</code>

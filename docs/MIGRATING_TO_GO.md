@@ -4,7 +4,7 @@ The [9lives Go runner](https://quality-max.github.io/9lives-runner/) is the prim
 
 ## Install and select the right executable
 
-The distributions are separate. Go ships macOS/Linux binaries for amd64 and arm64; Windows is not a declared runner target. The default website installer now downloads the Go runner, verifies the selected archive against its release's SHA256SUMS, and installs the binary plus LICENSE/NOTICE:
+The distributions are separate. Go runner v0.3.0 ships native macOS, Linux, and Windows binaries for amd64 (x64) and arm64. Windows users should follow the [ZIP download and checksum instructions](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md#windows); project dependencies and Chromium are installed separately. Windows provider CLI shell integrations remain unqualified. The macOS/Linux website shell installer downloads the Go runner, verifies the selected archive against its release's SHA256SUMS, and installs the binary plus LICENSE/NOTICE:
 
 ```sh
 curl -fsSL https://9lives.run/install.sh | sh
