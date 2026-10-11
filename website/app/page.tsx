@@ -10,9 +10,9 @@ const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIG
 
 const memes = [
   {
-    file: 'distracted-team-launch',
+    file: 'distracted-team-launch-v2',
     title: 'When you already have Playwright tests.',
-    alt: 'Distracted-boyfriend cat parody: a grey developer cat in glasses and a hoodie, carrying a laptop and labeled Playwright developer, turns toward the black Qmax kitten labeled 9lives, while a ginger cat with the official e2e logo and by TesterArmy label looks offended. Keep the tests. Repair the locator.',
+    alt: 'Distracted-boyfriend cat parody: a grey Playwright developer cat in glasses and a hoodie turns over his shoulder to stare at the black Qmax kitten labeled 9lives walking past in the foreground. The ginger companion labeled e2e by TesterArmy holds his arm and reacts to him with a shocked expression. Keep the tests. Repair the locator.',
     copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
   },
   {
