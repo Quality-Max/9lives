@@ -294,12 +294,25 @@ export default function Home() {
         <a href={runnerSite}>See the Go runner in action <span aria-hidden="true">↗</span></a>
       </section>
 
-      <footer>
+      <footer id="legal">
         <a className="qualitymax-brand" href="https://qualitymax.io" aria-label="QualityMax home">
           <Image src="https://qualitymax.io/static/img/qualitymax-logo-white.png" alt="QualityMax" width={200} height={30} unoptimized />
         </a>
         <p>Local Playwright execution with attributable evidence.</p>
         <span>© 2026 QualityMax</span>
+        <nav className="legal-links" aria-label="Legal information">
+          <a href="https://qualitymax.io/legal">Imprint / Impressum</a>
+          <a href="https://qualitymax.io/privacy">Privacy / Datenschutz</a>
+          <a href="https://qualitymax.io/terms">Terms / Nutzungsbedingungen</a>
+        </nav>
+        <div className="service-legal">
+          <p>For QualityMax service contracts:</p>
+          <nav className="legal-links" aria-label="QualityMax contract information">
+            <a href="https://qualitymax.io/legal/widerruf">Withdrawal / Widerruf</a>
+            <a href="https://qualitymax.io/cancel-contract">Cancel contract / Vertrag kündigen</a>
+          </nav>
+        </div>
+        <p className="legal-note">Legal information is maintained on qualitymax.io.</p>
       </footer>
     </main>
   );
