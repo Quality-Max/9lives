@@ -12,7 +12,7 @@ const memes = [
   {
     file: 'distracted-team-launch-v2',
     title: 'When you already have Playwright tests.',
-    alt: 'Distracted-boyfriend cat parody: a grey Playwright developer cat in glasses and a hoodie turns over his shoulder to stare at the black Qmax kitten labeled 9lives walking past in the foreground. The ginger companion labeled e2e by TesterArmy holds his arm and reacts to him with a shocked expression. Keep the tests. Repair the locator.',
+    alt: 'Distracted-boyfriend cat parody with three cats walking on four paws: the black Qmax kitten labeled 9lives approaches in the left foreground. Farther back on the right, the grey Playwright developer cat in glasses and a hoodie and the ginger e2e by TesterArmy companion walk away. The developer looks back at 9lives, with a laptop strapped to his side, while the companion looks at him. Keep the tests. Repair the locator.',
     copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
   },
   {
