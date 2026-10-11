@@ -12,6 +12,8 @@ Read the [migration guide](docs/MIGRATING_TO_GO.md) for installation, command di
 
 [Small UI change. Big test drama. Explore the developer memes on 9lives.run →](https://9lives.run/#memes)
 
+**Linux. macOS. Windows. One local workflow.** The [Go runner v0.3.0](https://github.com/Quality-Max/9lives-runner/releases/tag/v0.3.0) has native binaries for all three, on x64 and ARM64. Keep your Playwright project, configuration, and assertions across your team’s machines. Windows users: follow the [ZIP download and checksum guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md). Project dependencies and Chromium are separate; Windows provider CLI shell integrations remain unqualified.
+
 ## Recommended: Go runner for Playwright
 
 Install the Go binary on macOS or Linux (amd64/arm64), without needing Go or Python:
@@ -36,7 +38,7 @@ go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.1.1
 9l run tests/ --timeout 5m --format json
 ```
 
-Go requires an existing Playwright project with locally installed tooling and browsers. It provides planning, bounded execution, cancellation, and validated receipts. The optional SDK adds steps and bounded goals; see the [runner documentation](https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md). Native healing is experimental; Go's `9l heal` still delegates to this Python package.
+Go requires an existing Playwright project with locally installed tooling and browsers. It provides planning, bounded execution, cancellation, and validated receipts. The optional SDK adds steps and bounded goals; see the [runner documentation](https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md). Go v0.3 has experimental native `9l heal` and native `9l mcp`. The website installer is pinned to v0.1.1, whose `heal` command delegates to this Python package; use the release downloads for v0.3 features.
 
 ## Existing Python workflows
 

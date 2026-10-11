@@ -163,3 +163,13 @@ footer > span { text-align: right; }
   html { scroll-behavior: auto; }
   .ecosystem-card { transition: none; }
 }
+
+.feature-tour { padding-top: 24px; }
+.workflow-animation { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 32px; }
+.workflow-animation summary { padding: 16px; cursor: pointer; color: var(--muted); }
+.workflow-animation summary:focus-visible { outline: 3px solid var(--cyan); outline-offset: -3px; }
+.workflow-animation img { display: block; width: 100%; height: auto; }
+.feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.feature-grid h3 { font-size: 20px; margin: 0 0 10px; }
+.feature-grid p { color: var(--muted); line-height: 1.7; margin: 0; }
+@media (max-width: 760px) { .feature-grid { grid-template-columns: 1fr; } }

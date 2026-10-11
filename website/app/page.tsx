@@ -115,7 +115,7 @@ export default function Home() {
 
         <div className="command-stack" aria-label="Quick start commands">
           <div className="command-card primary-command">
-            <span className="command-label">Install the Go runner</span>
+            <span className="command-label">Install on macOS or Linux</span>
             <code>{installCommand}</code>
             <CopyButton value={installCommand} />
           </div>
@@ -131,10 +131,13 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> macOS & Linux <span>•</span> amd64 & arm64</p>
+        <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> Linux · macOS · Windows <span>•</span> x64 & ARM64</p>
+        <p className="hero-note">One local Playwright workflow across your team’s machines. The Go runner v0.3.0 has native binaries for all three platforms.</p>
         <p className="hero-note">Built by QualityMax without any external funding. Our ambition: become a leading name in modern test automation, with practical AI and proof you can inspect.</p>
         <p className="hero-note">
-          The installer downloads a checksum-verified binary; Go and Python are not required.
+          The macOS/Linux shell installer downloads a checksum-verified binary; Go and Python are not required.
+          Windows users: follow the <a href="https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md#windows">ZIP install guide</a>.
+          Windows provider CLI shell integrations remain unqualified.
           Your project needs its own Playwright dependencies and browsers.{' '}
           <a href={runnerSite}>Explore the runner</a> ·{' '}
           <a href="https://github.com/Quality-Max/9lives-runner/releases">Download a release</a> ·{' '}
@@ -158,6 +161,30 @@ export default function Home() {
             Python package listed on <strong>awesome-python-testing</strong> <span aria-hidden="true">↗</span>
           </a>
         </div>
+      </section>
+
+      <section className="section feature-tour" id="features" aria-labelledby="feature-tour-heading">
+        <div className="section-heading">
+          <p>THE 9LIVES FEATURE LOOP</p>
+          <h2 id="feature-tour-heading">Create. Assess. Run. Heal. Challenge.</h2>
+          <span>From an agent draft to verified evidence. Actual QualityMax Demo Bank assessment and offline healing, replayed with its browser capture and results. Additional feature examples are labeled illustrations. One seeded locator case, not a comparative benchmark.</span>
+        </div>
+        <details className="workflow-animation" open>
+          <summary>Show or hide the 9lives feature animation</summary>
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcSet="/workflows/workflow-illustration.png" />
+            <Image src="/workflows/workflow-illustration.gif" alt="9lives workflow: a generated QualityMax Demo Bank empty-sign-in test, actual advisory assessment and offline locator verification, followed by illustrations of fault testing, finding confirmation and MCP tools." width={1280} height={720} unoptimized />
+          </picture>
+        </details>
+        <div className="feature-grid">
+          <article key="Agent-assisted test generation"><h3>Agent-assisted test generation</h3><p>Your coding agent drafts Playwright specs from reviewed requirements. Capture creation provenance before assessing and executing them.</p></article>
+          <article key="Test assessment"><h3>Test assessment</h3><p>9l assess flags fixed waits, skips, missing or unawaited assertions, and requirement-mapping gaps. Static findings are advisory.</p></article>
+          <article key="Local execution"><h3>Local execution</h3><p>Plan and run your existing Playwright suite with bounded concurrency, deadlines, cancellation, and attributable terminal receipts.</p></article>
+          <article key="Locator healing"><h3>Locator healing</h3><p>Experimental native healing preserves assertions and verifies supported locator-only candidates in isolation before review and acceptance.</p></article>
+          <article key="Fault testing & confirmation"><h3>Fault testing &amp; confirmation</h3><p>Experimental prove injects fetch/XHR faults; confirm compares a reproduction on unfixed and fixed Git revisions. Inspect what each result establishes.</p></article>
+          <article key="Agent tools & SDK"><h3>Agent tools &amp; SDK</h3><p>Native MCP exposes run, heal, assess, and confirm tools. The optional SDK adds named steps and bounded goals; goal completion remains unverified.</p></article>
+        </div>
+        <p className="hero-note"><a href="https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md">Read all features and limits →</a></p>
       </section>
 
       <section className="section meme-section" id="memes" aria-labelledby="meme-heading">
@@ -215,9 +242,11 @@ export default function Home() {
           <span>Use Go for new Playwright projects. Python continues to receive security, correctness, and compatibility fixes; no removal date has been set.</span>
         </div>
         <p className="compatibility-copy">
-          Keep Python for MCP, watch and history reports, Cypress/Selenium, standalone-spec
-          scaffolding, and existing Action or pre-commit integrations. Go&apos;s <code>9l heal</code>{' '}
-          still delegates to Python; <code>heal-native</code> is an experimental, narrower alternative.
+          Keep Python for its existing MCP contracts, watch and history reports, Cypress/Selenium,
+          standalone-spec scaffolding, and existing Action or pre-commit integrations.
+          Go v0.3 has native <code>9l heal</code> and <code>9l mcp</code>; native healing is experimental.
+          The website shell installer is pinned to v0.1.1, whose heal command uses Python;
+          download v0.3 for the feature tour above.
         </p>
         <div className="inline-command">
           <code>{pythonCommand}</code>
