@@ -2,18 +2,20 @@
 
 Created with the built-in image generation tool. These are illustrated developer jokes, not product screenshots. The 20-second claim is scoped to one Python 9l 0.3.0 repair. Character-based Batman/Catwoman requests were rejected by the image tool; the delivered fourth image uses original feline superheroes.
 
-Production assets: 1024 × 1024 WebP, quality 84, encoded from generated PNG originals. Images load lazily on the websites with explicit dimensions and descriptive alt text. The first email uses a separate 640 × 640 PNG for email-client compatibility.
+Production assets: 1024 × 1024 WebP, quality 84, encoded from generated PNG originals. Images load lazily on 9lives.run with explicit dimensions and descriptive alt text. The first email uses a separate 640 × 640 PNG for email-client compatibility.
 
-| Asset | QualityMax path | 9lives path |
-| --- | --- | --- |
-| button-rename | `static/img/9lives/button-rename.webp` | `website/public/memes/button-rename.webp` |
-| harry-potter | `static/img/9lives/harry-potter.webp` | `website/public/memes/harry-potter.webp` |
-| lotr | `static/img/9lives/lotr.webp` | `website/public/memes/lotr.webp` |
-| batman-catwoman | `static/img/9lives/batman-catwoman.webp` | `website/public/memes/batman-catwoman.webp` |
+Meme images are hosted only on 9lives.run. QualityMax's homepage has no meme gallery; the GitHub README links to the gallery without embedding images.
+
+| Asset | 9lives path |
+| --- | --- |
+| button-rename | `website/public/memes/button-rename.webp` |
+| harry-potter | `website/public/memes/harry-potter.webp` |
+| lotr | `website/public/memes/lotr.webp` |
+| batman-catwoman | `website/public/memes/batman-catwoman.webp` |
 
 Social JPEG exports: `docs/marketing/assets/9lives-{harry-potter,lotr,batman-catwoman}-meme.jpg` in the QualityMax repository, 1024 × 1024 at quality 85. The original cat meme is the existing PNG in that directory.
 
-Email image: `static/img/9lives/button-rename-email.png` in the QualityMax repository.
+Email image: `website/public/memes/button-rename-email.png` in the 9lives repository, served at `https://9lives.run/memes/button-rename-email.png`.
 
 ## Prompts
 
