@@ -36,3 +36,7 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# Generated IndexNow ownership files (never commit credentials)
+/public/indexnow-key.txt
+/public/indexnow-deployment.txt
