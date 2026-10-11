@@ -10,6 +10,8 @@ Read the [migration guide](docs/MIGRATING_TO_GO.md) for installation, command di
 
 [Explore 9lives.run](https://9lives.run/) · [Read the Playwright field report](https://qualitymax.io/blog/9lives-playwright-field-report)
 
+[**Explore the interactive 9lives demo →**](https://app.supademo.com/demo/cmv43czgb0031wi0jzgno1y8r?utm_source=link)
+
 [Small UI change. Big test drama. Explore the developer memes on 9lives.run →](https://9lives.run/#memes)
 
 **Linux. macOS. Windows. One local workflow.** The [Go runner v0.3.0](https://github.com/Quality-Max/9lives-runner/releases/tag/v0.3.0) has native binaries for all three, on x64 and ARM64. Keep your Playwright project, configuration, and assertions across your team’s machines. Windows users: follow the [ZIP download and checksum guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md). Project dependencies and Chromium are separate; Windows provider CLI shell integrations remain unqualified.
@@ -45,8 +47,6 @@ Go requires an existing Playwright project with locally installed tooling and br
 The remainder of this README describes the Python package. Hosted QualityMax healing is a separate workflow. Review repair diffs and completed test results before accepting changes.
 
 **Your tests have nine lives.** Self-healing QA for the coding-agent era, by [QualityMax](https://qualitymax.io).
-
-![9lives healing a broken Playwright selector — offline, in seconds](demo/heal.gif)
 
 > Python compatibility demo: a coding agent renamed a button, the test went red, `9lives heal` read the live page, fixed the locator, re-ran it green, and showed the diff — no API key. [**Run the demo yourself →**](demo/)
 

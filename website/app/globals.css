@@ -173,10 +173,10 @@ footer .legal-note { grid-column: 1 / -1; }
 }
 
 .feature-tour { padding-top: 24px; }
-.workflow-animation { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 32px; }
-.workflow-animation summary { padding: 16px; cursor: pointer; color: var(--muted); }
-.workflow-animation summary:focus-visible { outline: 3px solid var(--cyan); outline-offset: -3px; }
-.workflow-animation img { display: block; width: 100%; height: auto; }
+.interactive-demo { display: block; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 32px; text-decoration: none; }
+.interactive-demo:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+.interactive-demo img { display: block; width: 100%; height: auto; }
+.interactive-demo-cta { display: block; padding: 20px; background: var(--surface); color: var(--cyan); font-weight: 700; text-align: center; }
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .feature-grid h3 { font-size: 20px; margin: 0 0 10px; }
 .feature-grid p { color: var(--muted); line-height: 1.7; margin: 0; }

@@ -7,12 +7,13 @@ const runCommand = '9l run tests/ --timeout 5m --format json';
 const pythonCommand = 'uv tool install 9lives';
 const runnerSite = 'https://quality-max.github.io/9lives-runner/';
 const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIGRATING_TO_GO.md';
+const interactiveDemo = 'https://app.supademo.com/demo/cmv43czgb0031wi0jzgno1y8r?utm_source=link';
 
 const memes = [
   {
-    file: 'distracted-team-launch',
+    file: 'distracted-team-launch-v2',
     title: 'When you already have Playwright tests.',
-    alt: 'Distracted-boyfriend cat parody: a grey developer cat in glasses and a hoodie, carrying a laptop and labeled Playwright developer, turns toward the black Qmax kitten labeled 9lives, while a ginger cat with the official e2e logo and by TesterArmy label looks offended. Keep the tests. Repair the locator.',
+    alt: 'Distracted-boyfriend cat parody: the black Qmax kitten labeled 9lives approaches in the left foreground. Farther back on the right, the grey Playwright developer cat in glasses and a hoodie walks away upright on two paws, carrying a silver laptop under his arm and looking back toward 9lives. The ginger e2e by TesterArmy companion turns toward his face with widened eyes and a slightly open mouth, looking offended and surprised. Keep the tests. Repair the locator.',
     copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
   },
   {
@@ -173,15 +174,12 @@ export default function Home() {
         <div className="section-heading">
           <p>THE 9LIVES FEATURE LOOP</p>
           <h2 id="feature-tour-heading">Create. Assess. Run. Heal. Challenge.</h2>
-          <span>From an agent draft to verified evidence. Actual QualityMax Demo Bank assessment and offline healing, replayed with its browser capture and results. Additional feature examples are labeled illustrations. One seeded locator case, not a comparative benchmark.</span>
+          <span>Explore the 9lives workflow in an interactive demo, then try the runner on your own Playwright tests. Native healing is experimental; a demo is not a comparative benchmark.</span>
         </div>
-        <details className="workflow-animation" open>
-          <summary>Show or hide the 9lives feature animation</summary>
-          <picture>
-            <source media="(prefers-reduced-motion: reduce)" srcSet="/workflows/workflow-illustration.png" />
-            <Image src="/workflows/workflow-illustration.gif" alt="9lives workflow: a generated QualityMax Demo Bank empty-sign-in test, actual advisory assessment and offline locator verification, followed by illustrations of fault testing, finding confirmation and MCP tools." width={1280} height={720} unoptimized />
-          </picture>
-        </details>
+        <a className="interactive-demo" href={interactiveDemo} target="_blank" rel="noreferrer" aria-label="Open the interactive 9lives demo on Supademo (new tab)">
+          <Image src="/workflows/workflow-illustration.png" alt="9lives workflow illustration" width={1280} height={720} unoptimized />
+          <span className="interactive-demo-cta">Explore the interactive demo <span aria-hidden="true">↗</span></span>
+        </a>
         <div className="feature-grid">
           <article key="Agent-assisted test generation"><h3>Agent-assisted test generation</h3><p>Your coding agent drafts Playwright specs from reviewed requirements. Capture creation provenance before assessing and executing them.</p></article>
           <article key="Test assessment"><h3>Test assessment</h3><p>9l assess flags fixed waits, skips, missing or unawaited assertions, and requirement-mapping gaps. Static findings are advisory.</p></article>
