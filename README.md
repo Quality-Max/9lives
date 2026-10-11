@@ -10,17 +10,7 @@ Read the [migration guide](docs/MIGRATING_TO_GO.md) for installation, command di
 
 [Explore 9lives.run](https://9lives.run/) · [Read the Playwright field report](https://qualitymax.io/blog/9lives-playwright-field-report)
 
-## Small UI change. Big test drama.
-
-For everyone who has heard “we only renamed a button.” Send one to the teammate who knows the feeling. Click an image for the full meme.
-
-| One button. A whole afternoon. | Less panic. More proof. |
-| --- | --- |
-| [![A panicked cat sees a failed Playwright test; a calm cat sees 9lives, 20 seconds later. Offline repair. Spec re-run. Green again.](website/public/memes/button-rename.webp)](website/public/memes/button-rename.webp) | [![Magical-school parody: You're a tester, Harry. Broken wand and glasses beside a failing laptop, then a ginger cat beside a passing laptop. Locatorus Brokenus becomes Rerunus Verifiedus. Less panic. More proof.](website/public/memes/harry-potter.webp)](website/public/memes/harry-potter.webp) |
-| A tiny change. An epic detour. | Your tests deserve nine lives. |
-| [![Lord of the Rings parody: One does not simply rename a button and expect green tests. Boromir faces a failed test; Gandalf inspects a passing result. 9lives. Repair. Re-run. Review.](website/public/memes/lotr.webp)](website/public/memes/lotr.webp) | [![Original bat-and-cat superhero comic: The button moved. A grumpy grey cat in a bat-eared cape sees FAIL; a confident ginger cat in a purple mask sees PASS. Another long night. Nine lives. Keep the assertion. Verify the fix.](website/public/memes/batman-catwoman.webp)](website/public/memes/batman-catwoman.webp) |
-
-These are illustrated developer jokes. The **20-second result** is one measured renamed-button repair with **Python 9l 0.3.0**, verified by re-running its spec; it is not a full-suite timing or a Go runner benchmark. See the [field report](https://qualitymax.io/blog/9lives-playwright-field-report) for scope and limits.
+[Small UI change. Big test drama. Explore the developer memes on 9lives.run →](https://9lives.run/#memes)
 
 ## Recommended: Go runner for Playwright
 
