@@ -176,10 +176,16 @@ export default function Home() {
           <h2 id="feature-tour-heading">Create. Assess. Run. Heal. Challenge.</h2>
           <span>Explore the 9lives workflow in an interactive demo, then try the runner on your own Playwright tests. Native healing is experimental; a demo is not a comparative benchmark.</span>
         </div>
-        <a className="interactive-demo" href={interactiveDemo} target="_blank" rel="noreferrer" aria-label="Open the interactive 9lives demo on Supademo (new tab)">
-          <Image src="/workflows/workflow-illustration.png" alt="9lives workflow illustration" width={1280} height={720} unoptimized />
-          <span className="interactive-demo-cta">Explore the interactive demo <span aria-hidden="true">↗</span></span>
-        </a>
+        <div className="interactive-demo">
+          <iframe
+            src="https://app.supademo.com/embed/cmv43czgb0031wi0jzgno1y8r?embed_v=2&utm_source=embed"
+            loading="lazy"
+            title="9lives: repair a broken Playwright locator"
+            allow="clipboard-write"
+            allowFullScreen
+          />
+        </div>
+        <p className="hero-note"><a href={interactiveDemo} target="_blank" rel="noreferrer">Open the demo in a new tab ↗</a></p>
         <div className="feature-grid">
           <article key="Agent-assisted test generation"><h3>Agent-assisted test generation</h3><p>Your coding agent drafts Playwright specs from reviewed requirements. Capture creation provenance before assessing and executing them.</p></article>
           <article key="Test assessment"><h3>Test assessment</h3><p>9l assess flags fixed waits, skips, missing or unawaited assertions, and requirement-mapping gaps. Static findings are advisory.</p></article>
