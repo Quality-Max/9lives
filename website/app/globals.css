@@ -140,6 +140,13 @@ footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center
 footer .qualitymax-brand img { width: 122px; }
 footer p { margin: 0; text-align: center; }
 footer > span { text-align: right; }
+footer .legal-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; grid-column: 1 / -1; font-size: 14px; }
+footer .legal-links a { display: inline-flex; align-items: center; min-height: 44px; color: #d8d3e9; text-decoration: underline; text-underline-offset: 4px; }
+footer .legal-links a:hover { color: var(--cyan); }
+footer .legal-links a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; border-radius: 2px; }
+footer .service-legal { grid-column: 1 / -1; }
+footer .service-legal p, footer .legal-note { color: var(--muted); }
+footer .legal-note { grid-column: 1 / -1; }
 
 @media (max-width: 760px) {
   .site-header { padding: 0 18px; }
