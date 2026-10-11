@@ -8,6 +8,33 @@ const pythonCommand = 'uv tool install 9lives';
 const runnerSite = 'https://quality-max.github.io/9lives-runner/';
 const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIGRATING_TO_GO.md';
 
+const memes = [
+  {
+    file: 'button-rename',
+    title: 'One button. A whole afternoon.',
+    alt: 'You renamed one button. A panicked cat watches a failing Playwright test; a calm cat sees 9lives, 20s later. Offline repair. Spec re-run. Green again.',
+    copy: 'The 20-second comeback is one measured Python 9l 0.3.0 repair, verified by re-running its spec.',
+  },
+  {
+    file: 'harry-potter',
+    title: 'Less panic. More proof.',
+    alt: 'Magical-school parody: You\'re a tester, Harry. Broken wand and glasses beside a failing laptop, then a ginger cat beside a passing laptop. Locatorus Brokenus becomes Rerunus Verifiedus. Less panic. More proof.',
+    copy: 'Even a little UI magic deserves a real test result.',
+  },
+  {
+    file: 'lotr',
+    title: 'A tiny change. An epic detour.',
+    alt: 'Lord of the Rings parody: One does not simply rename a button and expect green tests. Boromir faces a failing test; Gandalf inspects a passing result. 9lives. Repair. Re-run. Review.',
+    copy: 'The journey ends with evidence, not a hopeful green badge.',
+  },
+  {
+    file: 'batman-catwoman',
+    title: 'Your tests deserve nine lives.',
+    alt: 'Original bat-and-cat superhero comic: The button moved. A grumpy grey cat in a bat-eared cape sees FAIL; a confident ginger cat in a purple mask sees PASS. Another long night. Nine lives. Keep the assertion. Verify the fix.',
+    copy: 'Keep the assertion. Make the fix earn its green.',
+  },
+];
+
 const healingSteps = [
   {
     number: '01',
@@ -105,6 +132,7 @@ export default function Home() {
         </div>
 
         <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> macOS & Linux <span>•</span> amd64 & arm64</p>
+        <p className="hero-note">Built by QualityMax without any external funding. Our ambition: become a leading name in modern test automation, with practical AI and proof you can inspect.</p>
         <p className="hero-note">
           The installer downloads a checksum-verified binary; Go and Python are not required.
           Your project needs its own Playwright dependencies and browsers.{' '}
@@ -130,6 +158,25 @@ export default function Home() {
             Python package listed on <strong>awesome-python-testing</strong> <span aria-hidden="true">↗</span>
           </a>
         </div>
+      </section>
+
+      <section className="section meme-section" id="memes" aria-labelledby="meme-heading">
+        <div className="section-heading">
+          <p>SMALL UI CHANGE. BIG TEST DRAMA.</p>
+          <h2 id="meme-heading">We only renamed a button.</h2>
+          <span>For everyone who has lost an afternoon to those six words. Send one to the teammate who knows the feeling.</span>
+        </div>
+        <div className="meme-grid">
+          {memes.map((meme) => (
+            <figure className="meme-card" key={meme.file}>
+              <a href={`/memes/${meme.file}.webp`} aria-label={`Open meme: ${meme.title}`}>
+                <Image src={`/memes/${meme.file}.webp`} alt={meme.alt} width={1024} height={1024} unoptimized />
+              </a>
+              <figcaption><strong>{meme.title}</strong><p>{meme.copy}</p></figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="meme-note">Illustrated developer jokes. The 20-second result belongs to the Python field trial, not a Go runner benchmark. <a href="https://qualitymax.io/blog/9lives-playwright-field-report">Read the field report →</a></p>
       </section>
 
       <section className="section" id="how-it-works" aria-labelledby="how-heading">

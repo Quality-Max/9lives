@@ -92,6 +92,18 @@ code { font-family: var(--font-geist-mono), monospace; }
 .section-heading > p { color: var(--cyan); font-size: 11px; letter-spacing: .18em; font-weight: 750; }
 .section-heading h2 { margin: 10px 0 15px; font-size: clamp(36px, 5vw, 58px); line-height: 1.02; letter-spacing: -.05em; }
 .section-heading > span { color: var(--muted); font-size: 17px; line-height: 1.6; }
+.meme-section { padding-top: 24px; }
+.meme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.meme-card { margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.meme-card > a { display: block; }
+.meme-card > a:focus-visible { outline: 3px solid var(--cyan); outline-offset: -4px; }
+.meme-card img { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.meme-card figcaption { padding: 22px; }
+.meme-card strong { font-size: 20px; }
+.meme-card p, .meme-note { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.meme-card p { margin: 8px 0 0; }
+.meme-note { margin: 22px 0 0; }
+.meme-note a { color: var(--cyan); text-decoration: underline; text-underline-offset: 3px; }
 .step-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .step-card { min-height: 248px; padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(150deg, rgba(29, 24, 46, .93), rgba(14, 12, 24, .96)); }
 .step-number { display: block; color: var(--violet); font: 700 12px var(--font-geist-mono), monospace; }
@@ -136,6 +148,8 @@ footer > span { text-align: right; }
   .hero-copy { font-size: 16px; }
   .command-stack, .step-grid { grid-template-columns: 1fr; }
   .section { padding: 78px 18px; }
+  .meme-section { padding-top: 0; }
+  .meme-grid { grid-template-columns: 1fr; gap: 18px; }
   .step-card { min-height: 210px; }
   .step-card h3 { margin-top: 42px; }
   .ecosystem-grid { grid-template-columns: 1fr; }
