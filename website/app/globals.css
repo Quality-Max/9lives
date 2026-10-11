@@ -95,6 +95,7 @@ code { font-family: var(--font-geist-mono), monospace; }
 .meme-section { padding-top: 24px; }
 .meme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .meme-card { margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.meme-card:first-child { grid-column: 1 / -1; width: 100%; max-width: 760px; justify-self: center; }
 .meme-card > a { display: block; }
 .meme-card > a:focus-visible { outline: 3px solid var(--cyan); outline-offset: -4px; }
 .meme-card img { display: block; width: 100%; height: auto; aspect-ratio: 1; }

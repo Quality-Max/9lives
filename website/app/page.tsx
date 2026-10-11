@@ -10,27 +10,33 @@ const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIG
 
 const memes = [
   {
-    file: 'button-rename',
-    title: 'One button. A whole afternoon.',
-    alt: 'You renamed one button. A panicked cat watches a failing Playwright test; a calm cat sees 9lives, 20s later. Offline repair. Spec re-run. Green again.',
-    copy: 'The 20-second comeback is one measured Python 9l 0.3.0 repair, verified by re-running its spec.',
+    file: 'distracted-team-launch',
+    title: 'When you already have Playwright tests.',
+    alt: 'Distracted-boyfriend cat parody: a grey developer cat in glasses and a hoodie, carrying a laptop and labeled Playwright developer, turns toward the black Qmax kitten labeled 9lives, while a ginger cat with the official e2e logo and by TesterArmy label looks offended. Keep the tests. Repair the locator.',
+    copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
   },
   {
-    file: 'harry-potter',
+    file: 'button-rename-launch',
+    title: 'One button. A whole afternoon.',
+    alt: 'One button rename. The black Qmax kitten slumps over a failing laptop labeled My afternoon, then sits calmly beside a passing laptop labeled After the re-run. Repair the locator. Keep the assertion.',
+    copy: 'A locator repair still has to pass the original assertions.',
+  },
+  {
+    file: 'harry-potter-launch',
     title: 'Less panic. More proof.',
-    alt: 'Magical-school parody: You\'re a tester, Harry. Broken wand and glasses beside a failing laptop, then a ginger cat beside a passing laptop. Locatorus Brokenus becomes Rerunus Verifiedus. Less panic. More proof.',
+    alt: 'Magical-school cat parody: You\'re a tester, Harry. The black Qmax kitten in wizard glasses faces a failing laptop, then a passing one. Locatorus Brokenus becomes Rerunus Verifiedus. Even magic needs a re-run.',
     copy: 'Even a little UI magic deserves a real test result.',
   },
   {
-    file: 'lotr',
+    file: 'lotr-launch',
     title: 'A tiny change. An epic detour.',
-    alt: 'Lord of the Rings parody: One does not simply rename a button and expect green tests. Boromir faces a failing test; Gandalf inspects a passing result. 9lives. Repair. Re-run. Review.',
+    alt: 'Epic fantasy cat parody: One does not simply rename a button. The black Qmax kitten wears a grey wizard cloak beside a failing laptop, then reviews a passing result. Repair. Re-run. Review.',
     copy: 'The journey ends with evidence, not a hopeful green badge.',
   },
   {
-    file: 'batman-catwoman',
+    file: 'batman-catwoman-launch',
     title: 'Your tests deserve nine lives.',
-    alt: 'Original bat-and-cat superhero comic: The button moved. A grumpy grey cat in a bat-eared cape sees FAIL; a confident ginger cat in a purple mask sees PASS. Another long night. Nine lives. Keep the assertion. Verify the fix.',
+    alt: 'Original feline superhero parody: The button moved. A black kitten in a bat-eared cape sees FAIL; the Qmax kitten in a violet mask sees PASS. Another long night. Nine lives. Keep the assertion. Verify the fix.',
     copy: 'Keep the assertion. Make the fix earn its green.',
   },
 ];
@@ -190,8 +196,8 @@ export default function Home() {
       <section className="section meme-section" id="memes" aria-labelledby="meme-heading">
         <div className="section-heading">
           <p>SMALL UI CHANGE. BIG TEST DRAMA.</p>
-          <h2 id="meme-heading">We only renamed a button.</h2>
-          <span>For everyone who has lost an afternoon to those six words. Send one to the teammate who knows the feeling.</span>
+          <h2 id="meme-heading">Nine lives. Same test drama.</h2>
+          <span>The launch kitten has been through it too. Open a meme and send it to the teammate who knows the feeling.</span>
         </div>
         <div className="meme-grid">
           {memes.map((meme) => (
@@ -203,7 +209,7 @@ export default function Home() {
             </figure>
           ))}
         </div>
-        <p className="meme-note">Illustrated developer jokes. The 20-second result belongs to the Python field trial, not a Go runner benchmark. <a href="https://qualitymax.io/blog/9lives-playwright-field-report">Read the field report →</a></p>
+        <p className="meme-note">Illustrated developer jokes. Native healing is experimental; these images are not benchmarks. <a href="https://qualitymax.io/blog/9lives-playwright-field-report">Read the field report →</a></p>
       </section>
 
       <section className="section" id="how-it-works" aria-labelledby="how-heading">
