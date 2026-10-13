@@ -14,7 +14,7 @@ Read the [migration guide](docs/MIGRATING_TO_GO.md) for installation, command di
 
 [Small UI change. Big test drama. Explore the developer memes on 9lives.run →](https://9lives.run/#memes)
 
-**Linux. macOS. Windows. One local workflow.** The [Go runner v0.3.0](https://github.com/Quality-Max/9lives-runner/releases/tag/v0.3.0) has native binaries for all three, on x64 and ARM64. Keep your Playwright project, configuration, and assertions across your team’s machines. Windows users: follow the [ZIP download and checksum guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md). Project dependencies and Chromium are separate; Windows provider CLI shell integrations remain unqualified.
+**Linux. macOS. Windows. One local workflow.** The [Go runner v0.4.0](https://github.com/Quality-Max/9lives-runner/releases/tag/v0.4.0) has native binaries for all three, on x64 and ARM64. Keep your Playwright project, configuration, and assertions across your team’s machines. Windows users: follow the [ZIP download and checksum guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md). Project dependencies and Chromium are separate; Windows provider CLI shell integrations remain unqualified.
 
 ## Recommended: Go runner for Playwright
 
@@ -33,14 +33,14 @@ The installer uses a pinned, checksum-verified release and installs into a separ
 Alternatively, download a [prebuilt release](https://github.com/Quality-Max/9lives-runner/releases), or with Go 1.25.13 or newer:
 
 ```bash
-go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.1.1
+go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.4.0
 # Add your Go binary directory to PATH, then confirm which CLI you selected:
 9l --version
 9l plan tests/
 9l run tests/ --timeout 5m --format json
 ```
 
-Go requires an existing Playwright project with locally installed tooling and browsers. It provides planning, bounded execution, cancellation, and validated receipts. The optional SDK adds steps and bounded goals; see the [runner documentation](https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md). Go v0.3 has experimental native `9l heal` and native `9l mcp`. The website installer is pinned to v0.1.1, whose `heal` command delegates to this Python package; use the release downloads for v0.3 features.
+Go requires an existing Playwright project with locally installed tooling and browsers. It provides planning, bounded execution, cancellation, and validated receipts. The optional SDK adds steps and bounded goals; see the [runner documentation](https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md). Go v0.4 has experimental native `9l heal`, native `9l mcp`, and the `9l scan` and `9l inspect` page checks. The website installer installs v0.4.0.
 
 ## Existing Python workflows
 
@@ -119,7 +119,7 @@ claude mcp add 9lives -- uvx --from 9lives 9lives mcp
 
 The behavior-vs-drift guard applies to agents too: a failing assertion comes back as `needs-human`, with an explicit note that forcing it green would mask a real bug. `heal_test` only accepts existing test files under the directory `9lives mcp` was started in (`NINELIVES_MCP_UNRESTRICTED=1` lifts this), since healing a spec ultimately executes it.
 
-Healing is half the loop — the spec has to come from somewhere. 9lives' sibling MCP server, [qmax-mcp](https://github.com/Quality-Max/qmax-mcp) (`npx -y @qualitymax/qmax-mcp`, MIT), covers the other half: scan a page for defects, inspect it for stability-ranked locators and a testability score, generate a Playwright repro, and run it. Same rules — local, free, no account. A spec born on qmax-mcp's stability-ranked locators is exactly the kind 9lives can keep alive when it drifts.
+Healing is half the loop — the spec has to come from somewhere. The Go runner now covers the other half, with the checks that used to be the separate qmax-mcp server: `9l scan <url>` finds console, link, accessibility, Core Web Vitals, SEO, security-header, cookie, mixed-content and page-weight problems from one page load; `9l inspect <url>` ranks a page's locators by stability; and `9l mcp` gives coding agents `scan_url`, `inspect_page` and `generate_playwright_repro` beside its run, heal, assess and confirm tools. Same rules — local, free, no account. A spec built on stable locators is exactly the kind 9lives can keep alive when it drifts. See [Check the page you changed](https://github.com/Quality-Max/9lives-runner#check-the-page-you-changed).
 
 ## Heal on save & pre-commit
 

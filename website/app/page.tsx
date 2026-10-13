@@ -4,18 +4,14 @@ import { CopyButton } from './copy-button';
 const installCommand = 'curl -fsSL https://9lives.run/install.sh | sh';
 const pathCommand = 'export PATH="$HOME/.local/share/9lives-runner/bin:$PATH"';
 const runCommand = '9l run tests/ --timeout 5m --format json';
+const scanCommand = '9l scan https://your-app.dev --format markdown';
+const mcpCommand = 'claude mcp add 9lives -- 9l mcp';
 const pythonCommand = 'uv tool install 9lives';
 const runnerSite = 'https://quality-max.github.io/9lives-runner/';
 const migrationGuide = 'https://github.com/Quality-Max/9lives/blob/main/docs/MIGRATING_TO_GO.md';
 const interactiveDemo = 'https://app.supademo.com/demo/cmv43czgb0031wi0jzgno1y8r?utm_source=link';
 
 const memes = [
-  {
-    file: 'distracted-team-launch-v2',
-    title: 'When you already have Playwright tests.',
-    alt: 'Distracted-boyfriend cat parody: the black Qmax kitten labeled 9lives approaches in the left foreground. Farther back on the right, the grey Playwright developer cat in glasses and a hoodie walks away upright on two paws, carrying a silver laptop under his arm and looking back toward 9lives. The ginger e2e by TesterArmy companion turns toward his face with widened eyes and a slightly open mouth, looking offended and surprised. Keep the tests. Repair the locator.',
-    copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
-  },
   {
     file: 'button-rename-launch',
     title: 'One button. A whole afternoon.',
@@ -42,6 +38,41 @@ const memes = [
   },
 ];
 
+const pageChecks = [
+  ['console', 'JavaScript errors, warnings, and failed requests'],
+  ['links', 'Broken and redirecting links'],
+  ['accessibility', 'Missing alt text, unlabelled controls, heading structure'],
+  ['performance', 'Core Web Vitals: LCP, CLS, TTFB, FCP'],
+  ['seo', 'Title and meta description'],
+  ['security_headers', 'CSP, HSTS, X-Content-Type-Options, Referrer-Policy'],
+  ['cookies', 'Cookie flags, third-party cookies, trackers before consent'],
+  ['mixed_content', 'HTTP resources and form actions on HTTPS pages'],
+  ['weight', 'Transfer size, requests, render-blocking and oversized assets'],
+];
+
+const verificationSteps = [
+  {
+    number: '01',
+    title: 'scan_url — find what broke',
+    copy: 'Nine checks from one Chromium page load, with graded findings, reproduction steps, and suggested fixes.',
+  },
+  {
+    number: '02',
+    title: 'inspect_page — see what a test can use',
+    copy: 'Page structure, accessible names, and ranked Playwright locators with a stability verdict for each control.',
+  },
+  {
+    number: '03',
+    title: 'generate_playwright_repro — keep the failure',
+    copy: 'A deterministic, reviewable spec for a finding, written inside the project. Nothing runs until you choose.',
+  },
+  {
+    number: '04',
+    title: 'run_test or confirm_finding — prove it',
+    copy: 'Execute the repro with validated receipts, or check that it fails before the fix and passes after it.',
+  },
+];
+
 const healingSteps = [
   {
     number: '01',
@@ -61,12 +92,6 @@ const healingSteps = [
 ];
 
 const ecosystem = [
-  {
-    eyebrow: 'Find defects',
-    title: 'qmax-mcp',
-    copy: 'Scan a live page, inspect stable locators, and generate a Playwright reproduction.',
-    href: 'https://qmax.run',
-  },
   {
     eyebrow: 'Ship in the cloud',
     title: 'QualityMax Cloud',
@@ -101,6 +126,7 @@ export default function Home() {
           <Image src="https://qualitymax.io/static/img/qualitymax-logo-white.png" alt="QualityMax" width={200} height={30} unoptimized />
         </a>
         <nav aria-label="Primary navigation">
+          <a href="#page-checks">Page checks</a>
           <a href="#how-it-works">How it works</a>
           <a href={runnerSite}>Documentation</a>
           <a href="#ecosystem">Ecosystem</a>
@@ -136,10 +162,15 @@ export default function Home() {
             <code>{runCommand}</code>
             <CopyButton value={runCommand} />
           </div>
+          <div className="command-card">
+            <span className="command-label">Check the page you changed</span>
+            <code>{scanCommand}</code>
+            <CopyButton value={scanCommand} />
+          </div>
         </div>
 
         <p className="trust-line">Apache-2.0 <span>•</span> No QualityMax account <span>•</span> Linux · macOS · Windows <span>•</span> x64 & ARM64</p>
-        <p className="hero-note">One local Playwright workflow across your team’s machines. The Go runner v0.3.0 has native binaries for all three platforms.</p>
+        <p className="hero-note">One local Playwright workflow across your team’s machines. The Go runner v0.4.0 has native binaries for all three platforms.</p>
         <p className="hero-note">Built by QualityMax without any external funding. Our ambition: become a leading name in modern test automation, with practical AI and proof you can inspect.</p>
         <p className="hero-note">
           The macOS/Linux shell installer downloads a checksum-verified binary; Go and Python are not required.
@@ -192,9 +223,43 @@ export default function Home() {
           <article key="Local execution"><h3>Local execution</h3><p>Plan and run your existing Playwright suite with bounded concurrency, deadlines, cancellation, and attributable terminal receipts.</p></article>
           <article key="Locator healing"><h3>Locator healing</h3><p>Experimental native healing preserves assertions and verifies supported locator-only candidates in isolation before review and acceptance.</p></article>
           <article key="Fault testing & confirmation"><h3>Fault testing &amp; confirmation</h3><p>Experimental prove injects fetch/XHR faults; confirm compares a reproduction on unfixed and fixed Git revisions. Inspect what each result establishes.</p></article>
-          <article key="Agent tools & SDK"><h3>Agent tools &amp; SDK</h3><p>Native MCP exposes run, heal, assess, and confirm tools. The optional SDK adds named steps and bounded goals; goal completion remains unverified.</p></article>
+          <article key="Page checks"><h3>Page checks</h3><p>9l scan reports console, link, accessibility, vitals, SEO, header, cookie, mixed-content, and weight findings from one page load; 9l inspect ranks locators. Observations, not test results.</p></article>
+          <article key="Agent tools & SDK"><h3>Agent tools &amp; SDK</h3><p>Native MCP exposes run, heal, assess, confirm, page scan, page inspection, and repro tools. The optional SDK adds named steps and bounded goals; goal completion remains unverified.</p></article>
         </div>
         <p className="hero-note"><a href="https://github.com/Quality-Max/9lives-runner/blob/main/docs/README.md">Read all features and limits →</a></p>
+      </section>
+
+      <section className="section" id="page-checks" aria-labelledby="page-checks-heading">
+        <div className="section-heading">
+          <p>THE VERIFICATION LOOP</p>
+          <h2 id="page-checks-heading">From “looks done” to evidence it works.</h2>
+          <span>Give your coding agent independent evidence from the page before it declares a web change done. Local, no account, and the same checks from the CLI or MCP.</span>
+        </div>
+        <div className="step-grid">
+          {verificationSteps.map((step) => (
+            <article className="step-card" key={step.number}>
+              <span className="step-number">{step.number}</span>
+              <h3>{step.title}</h3>
+              <p>{step.copy}</p>
+            </article>
+          ))}
+        </div>
+        <div className="feature-grid">
+          {pageChecks.map(([name, copy]) => (
+            <article key={name}><h3><code>{name}</code></h3><p>{copy}</p></article>
+          ))}
+        </div>
+        <div className="inline-command">
+          <code>{mcpCommand}</code>
+          <CopyButton value={mcpCommand} />
+        </div>
+        <p className="compatibility-copy">
+          <code>--baseline</code> with <code>--fail-on-new</code> gates a pipeline on new findings only.
+          Pages behind a login use a Playwright storage-state file with explicit consent; loopback targets
+          need <code>--allow-private-network</code>. One cold page load is not field data, and INP is not measured.
+          These checks were previously the separate qmax-mcp npm server.{' '}
+          <a href="https://github.com/Quality-Max/9lives-runner#check-the-page-you-changed">Read the page-check guide</a>
+        </p>
       </section>
 
       <section className="section meme-section" id="memes" aria-labelledby="meme-heading">
@@ -254,9 +319,8 @@ export default function Home() {
         <p className="compatibility-copy">
           Keep Python for its existing MCP contracts, watch and history reports, Cypress/Selenium,
           standalone-spec scaffolding, and existing Action or pre-commit integrations.
-          Go v0.3 has native <code>9l heal</code> and <code>9l mcp</code>; native healing is experimental.
-          The website shell installer is pinned to v0.1.1, whose heal command uses Python;
-          download v0.3 for the feature tour above.
+          Go v0.4 has native <code>9l heal</code>, <code>9l mcp</code>, <code>9l scan</code>, and <code>9l inspect</code>;
+          native healing is experimental. The website shell installer installs Go v0.4.0.
         </p>
         <div className="inline-command">
           <code>{pythonCommand}</code>
