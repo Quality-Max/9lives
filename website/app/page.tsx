@@ -13,12 +13,6 @@ const interactiveDemo = 'https://app.supademo.com/demo/cmv43czgb0031wi0jzgno1y8r
 
 const memes = [
   {
-    file: 'distracted-team-launch-v2',
-    title: 'When you already have Playwright tests.',
-    alt: 'Distracted-boyfriend cat parody: the black Qmax kitten labeled 9lives approaches in the left foreground. Farther back on the right, the grey Playwright developer cat in glasses and a hoodie walks away upright on two paws, carrying a silver laptop under his arm and looking back toward 9lives. The ginger e2e by TesterArmy companion turns toward his face with widened eyes and a slightly open mouth, looking offended and surprised. Keep the tests. Repair the locator.',
-    copy: 'e2e by TesterArmy vs 9lives, through the eyes of a team with an existing Playwright suite. Try the runner on a real test and review the repair.',
-  },
-  {
     file: 'button-rename-launch',
     title: 'One button. A whole afternoon.',
     alt: 'One button rename. The black Qmax kitten slumps over a failing laptop labeled My afternoon, then sits calmly beside a passing laptop labeled After the re-run. Repair the locator. Keep the assertion.',
