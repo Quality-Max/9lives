@@ -52,6 +52,7 @@ describe('Go runner onboarding', () => {
     expect(screen.getAllByText('curl -fsSL https://9lives.run/install.sh | sh')).toHaveLength(2);
     expect(screen.getByText('export PATH="$HOME/.local/share/9lives-runner/bin:$PATH"')).toBeTruthy();
     expect(screen.getByText('9l run tests/ --timeout 5m --format json')).toBeTruthy();
+    expect(screen.getByText('9l scan https://your-app.dev --format markdown')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Documentation' }).getAttribute('href'))
       .toBe('https://quality-max.github.io/9lives-runner/');
     expect(screen.getByRole('link', { name: /github/i }).getAttribute('href'))
@@ -60,5 +61,19 @@ describe('Go runner onboarding', () => {
     expect(screen.getByText('uv tool install 9lives')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Read the migration guide' }).getAttribute('href'))
       .toBe('https://github.com/Quality-Max/9lives/blob/main/docs/MIGRATING_TO_GO.md');
+  });
+});
+
+describe('Page checks', () => {
+  it('presents the verification loop and the nine checks built into the runner', () => {
+    render(<Home />);
+
+    expect(screen.getByRole('heading', { name: 'From “looks done” to evidence it works.' })).toBeTruthy();
+    for (const check of ['console', 'links', 'accessibility', 'performance', 'seo', 'security_headers', 'cookies', 'mixed_content', 'weight']) {
+      expect(screen.getByRole('heading', { name: check })).toBeTruthy();
+    }
+    expect(screen.getByText('claude mcp add 9lives -- 9l mcp')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Page checks' }).getAttribute('href')).toBe('#page-checks');
+    expect(screen.queryAllByRole('link').some((link) => link.getAttribute('href')?.startsWith('https://qmax.run'))).toBe(false);
   });
 });

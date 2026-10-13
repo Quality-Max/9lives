@@ -4,7 +4,7 @@
 # Python compatibility: pip install 9lives / uv tool install 9lives.
 set -eu
 
-VERSION="${NINELIVES_VERSION:-v0.1.1}"
+VERSION="${NINELIVES_VERSION:-v0.4.0}"
 INSTALL_DIR="${NINELIVES_INSTALL_DIR:-$HOME/.local/share/9lives-runner/bin}"
 REPOSITORY="https://github.com/Quality-Max/9lives-runner"
 
@@ -12,10 +12,10 @@ fail() { printf '9lives: %s\n' "$1" >&2; exit 1; }
 say() { printf '9lives: %s\n' "$1"; }
 
 case "$VERSION" in
-  *[!v0-9.]*) fail "NINELIVES_VERSION must be a stable tag such as v0.1.1" ;;
+  *[!v0-9.]*) fail "NINELIVES_VERSION must be a stable tag such as v0.4.0" ;;
 esac
 printf '%s\n' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' ||
-  fail "NINELIVES_VERSION must be a stable tag such as v0.1.1"
+  fail "NINELIVES_VERSION must be a stable tag such as v0.4.0"
 case "$INSTALL_DIR" in
   /*) ;;
   *) fail "NINELIVES_INSTALL_DIR must be an absolute directory path" ;;
@@ -109,6 +109,7 @@ say "add this directory to PATH, then check '9l --version' selects the Go runner
 quoted_dir="$(printf '%s' "$INSTALL_DIR" | sed "s/'/'\\\\''/g")"
 printf "  export PATH='%s':\"\$PATH\"\n" "$quoted_dir"
 say "from an existing Playwright project: 9l plan tests/ && 9l run tests/"
+say "check the page you changed: 9l scan https://your-app.dev --format markdown"
 say "install project dependencies and Playwright browsers separately"
 say "guide: https://quality-max.github.io/9lives-runner/"
 say "Python compatibility remains available via '9lives' or 'python -m ninelives.cli'"
