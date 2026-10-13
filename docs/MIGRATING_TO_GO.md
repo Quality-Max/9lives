@@ -12,11 +12,11 @@ export PATH="$HOME/.local/share/9lives-runner/bin:$PATH"
 9l --version
 ```
 
-The root endpoint (`curl -fsSL https://9lives.run | sh`) serves the same script to non-HTML clients. The default release is pinned to `v0.1.1`; choose another stable release or an absolute destination explicitly:
+The root endpoint (`curl -fsSL https://9lives.run | sh`) serves the same script to non-HTML clients. The default release is pinned to `v0.4.0`; choose another stable release or an absolute destination explicitly. The installer and the 9lives.run site are maintained in the [runner repository](https://github.com/Quality-Max/9lives-runner/blob/main/docs/website.md):
 
 ```sh
 curl -fsSL https://9lives.run/install.sh | \
-  NINELIVES_VERSION=v0.1.1 NINELIVES_INSTALL_DIR="$HOME/.local/share/9lives-runner/bin" sh
+  NINELIVES_VERSION=v0.4.0 NINELIVES_INSTALL_DIR="$HOME/.local/share/9lives-runner/bin" sh
 ```
 
 The installer prints the PATH command and does not edit shell profiles. Its separate default directory leaves Python's entry points available. If a custom destination already contains a symlink or another CLI called `9l`, installation stops rather than overwriting it. Update any scripts that relied on the old Python installer to use `pip install 9lives` or `uv tool install 9lives` explicitly.
@@ -24,7 +24,7 @@ The installer prints the PATH command and does not edit shell profiles. Its sepa
 Alternatively, download a pinned [release and verify its checksum](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md), or with Go 1.25.13 or newer:
 
 ```sh
-go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.1.1
+go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.4.0
 "$(go env GOPATH)/bin/9l" --version
 ```
 

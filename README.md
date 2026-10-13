@@ -28,7 +28,7 @@ export PATH="$HOME/.local/share/9lives-runner/bin:$PATH"
 9l run tests/ --timeout 5m --format json
 ```
 
-The installer uses a pinned, checksum-verified release and installs into a separate Go directory. `curl -fsSL https://9lives.run | sh` selects the same installer. Override the release or destination explicitly with `NINELIVES_VERSION` or `NINELIVES_INSTALL_DIR`; see the [migration guide](docs/MIGRATING_TO_GO.md). It does not install the SDK, project dependencies, or browsers.
+The installer uses a pinned, checksum-verified release and installs into a separate Go directory. `curl -fsSL https://9lives.run | sh` selects the same installer. Override the release or destination explicitly with `NINELIVES_VERSION` or `NINELIVES_INSTALL_DIR`; see the [migration guide](docs/MIGRATING_TO_GO.md). It does not install the SDK, project dependencies, or browsers. The installer and the 9lives.run site live in the [runner repository](https://github.com/Quality-Max/9lives-runner/blob/main/docs/website.md).
 
 Alternatively, download a [prebuilt release](https://github.com/Quality-Max/9lives-runner/releases), or with Go 1.25.13 or newer:
 
