@@ -1,6 +1,6 @@
 # Migrating from the Python CLI to the Go runner
 
-The [9lives Go runner](https://quality-max.github.io/9lives-runner/) is the primary CLI for new Playwright projects. The Python `9lives` package is in maintenance mode: security, correctness, compatibility, and migration fixes continue; new CLI features belong in the [runner repository](https://github.com/Quality-Max/9lives-runner). Python remains available for existing workflows. There is no removal date yet.
+The [9lives Go runner](https://9lives.run/) is the primary CLI for new Playwright projects. The Python `9lives` package is in maintenance mode: security, correctness, compatibility, and migration fixes continue; new CLI features belong in the [runner repository](https://github.com/Quality-Max/9lives-runner). Python remains available for existing workflows. There is no removal date yet.
 
 ## Install and select the right executable
 
@@ -21,10 +21,10 @@ curl -fsSL https://9lives.run/install.sh | \
 
 The installer prints the PATH command and does not edit shell profiles. Its separate default directory leaves Python's entry points available. If a custom destination already contains a symlink or another CLI called `9l`, installation stops rather than overwriting it. Update any scripts that relied on the old Python installer to use `pip install 9lives` or `uv tool install 9lives` explicitly.
 
-Alternatively, download a pinned [release and verify its checksum](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md), or with Go 1.25.13 or newer:
+Alternatively, download a pinned [release and verify its checksum](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md), or with Go 1.27.3 or newer:
 
 ```sh
-go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.4.0
+go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.5.0
 "$(go env GOPATH)/bin/9l" --version
 ```
 
