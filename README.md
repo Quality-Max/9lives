@@ -1,6 +1,6 @@
 # 🐾 9lives
 
-[Go runner website](https://quality-max.github.io/9lives-runner/) · [Migration guide](docs/MIGRATING_TO_GO.md) · [Standalone tools](https://docs.qualitymax.io/free-and-open-source/)
+[Go runner website](https://9lives.run/) · [Migration guide](docs/MIGRATING_TO_GO.md) · [Standalone tools](https://docs.qualitymax.io/free-and-open-source/)
 
 **Status: Python CLI in maintenance mode.** New Playwright projects should use the [9lives Go runner](https://github.com/Quality-Max/9lives-runner). New CLI features belong there; this package continues to receive security, correctness, and compatibility fixes for existing workflows. There is no Python removal date yet.
 
@@ -14,7 +14,7 @@ Read the [migration guide](docs/MIGRATING_TO_GO.md) for installation, command di
 
 [Small UI change. Big test drama. Explore the developer memes on 9lives.run →](https://9lives.run/#memes)
 
-**Linux. macOS. Windows. One local workflow.** The [Go runner v0.4.0](https://github.com/Quality-Max/9lives-runner/releases/tag/v0.4.0) has native binaries for all three, on x64 and ARM64. Keep your Playwright project, configuration, and assertions across your team’s machines. Windows users: follow the [ZIP download and checksum guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md). Project dependencies and Chromium are separate; Windows provider CLI shell integrations remain unqualified.
+**Linux. macOS. Windows. One local workflow.** The [Go runner v0.5.0](https://github.com/Quality-Max/9lives-runner/releases/tag/v0.5.0) has native binaries for all three, on x64 and ARM64. Keep your Playwright project, configuration, and assertions across your team’s machines. Windows users: follow the [ZIP download and checksum guide](https://github.com/Quality-Max/9lives-runner/blob/main/docs/install.md). Project dependencies and Chromium are separate; Windows provider CLI shell integrations remain unqualified.
 
 ## Recommended: Go runner for Playwright
 
@@ -30,10 +30,10 @@ export PATH="$HOME/.local/share/9lives-runner/bin:$PATH"
 
 The installer uses a pinned, checksum-verified release and installs into a separate Go directory. `curl -fsSL https://9lives.run | sh` selects the same installer. Override the release or destination explicitly with `NINELIVES_VERSION` or `NINELIVES_INSTALL_DIR`; see the [migration guide](docs/MIGRATING_TO_GO.md). It does not install the SDK, project dependencies, or browsers. The installer and the 9lives.run site live in the [runner repository](https://github.com/Quality-Max/9lives-runner/blob/main/docs/website.md).
 
-Alternatively, download a [prebuilt release](https://github.com/Quality-Max/9lives-runner/releases), or with Go 1.25.13 or newer:
+Alternatively, download a [prebuilt release](https://github.com/Quality-Max/9lives-runner/releases), or with Go 1.27.3 or newer:
 
 ```bash
-go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.4.0
+go install github.com/Quality-Max/9lives-runner/cmd/9l@v0.5.0
 # Add your Go binary directory to PATH, then confirm which CLI you selected:
 9l --version
 9l plan tests/
